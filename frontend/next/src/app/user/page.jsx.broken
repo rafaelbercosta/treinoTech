@@ -1,0 +1,844 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+// import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import DynamicBackground from "../../components/DynamicBackground";
+
+export default function UserPage() {
+  const router = useRouter();
+
+  // ===== Estados =====
+  const [treinos, setTreinos] = useState([]);
+  const [novoTreinoNome, setNovoTreinoNome] = useState("");
+  const [treinoExpandido, setTreinoExpandido] = useState({});
+  const [exFormVisivel, setExFormVisivel] = useState({});
+  const [novoExercicio, setNovoExercicio] = useState({});
+  const [editandoEx, setEditandoEx] = useState({});
+  const [editandoTreino, setEditandoTreino] = useState({});
+  const [editBufferTreino, setEditBufferTreino] = useState({});
+  const [adicionarTreinoVisivel, setAdicionarTreinoVisivel] = useState(false);
+  const [historicoVisivel, setHistoricoVisivel] = useState({});
+  const [novoHistoricoObs, setNovoHistoricoObs] = useState({});
+  const [concluirVisivel, setConcluirVisivel] = useState({});
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [observacaoVisivel, setObservacaoVisivel] = useState({});
+  const [menuTreinoVisivel, setMenuTreinoVisivel] = useState({});
+  const [successPopupTreino, setSuccessPopupTreino] = useState({});
+
+  // ===== Utilitário Headers =====
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+  };
+
+  // ===== Sair =====
+  const sair = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    router.push("/login");
+  };
+
+  // ===== Buscar treinos =====
+  useEffect(() => {
+    const fetchWorkouts = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/workouts", {
+          headers: getAuthHeaders(),
+        });
+        const data = await res.json();
+        setTreinos(data);
+      } catch (err) {
+        console.error("Erro ao buscar treinos:", err);
+      }
+    };
+    fetchWorkouts();
+  }, []);
+
+  // ===== Fechar menus ao clicar fora =====
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Verifica se o clique foi no botão das bolinhas ou nos botões de ação
+      if (!event.target.closest('.treino-menu-button') && !event.target.closest('.treino-action-buttons') && !event.target.closest('.treino-menu-buttons')) {
+        setMenuTreinoVisivel({});
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  // ===== Funções de Treino =====
+  const adicionarTreino = async () => {
+    const nome = (novoTreinoNome || "").trim();
+    if (!nome) return;
+
+    try {
+      const res = await fetch("http://localhost:5000/api/workouts", {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ nome }),
+      });
+      const data = await res.json();
+      setTreinos((prev) => [...prev, data]);
+      setNovoTreinoNome("");
+      setTreinoExpandido((prev) => ({ ...prev, [data._id]: false }));
+      setExFormVisivel((prev) => ({ ...prev, [data._id]: false }));
+      setAdicionarTreinoVisivel(false);
+    } catch (err) {
+      console.error("Erro ao criar treino:", err);
+    }
+  };
+
+  const deletarTreino = async (treinoId) => {
+    if (!window.confirm("Tem certeza que deseja deletar este treino?")) return;
+    try {
+      await fetch(`http://localhost:5000/api/workouts/${treinoId}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      setTreinos((prev) => prev.filter((t) => t._id !== treinoId));
+    } catch (err) {
+      console.error("Erro ao remover treino:", err);
+    }
+  };
+
+  const toggleExpandir = (treinoId) =>
+    setTreinoExpandido((prev) => ({ ...prev, [treinoId]: !prev[treinoId] }));
+
+  const toggleEditTreino = (treinoId) =>
+    setEditandoTreino((prev) => {
+      const next = !prev[treinoId];
+      setEditBufferTreino((b) =>
+        next
+          ? { ...b, [treinoId]: treinos.find((t) => t._id === treinoId)?.nome || "" }
+          : (() => {
+              const nb = { ...b };
+              delete nb[treinoId];
+              return nb;
+            })()
+      );
+      return { ...prev, [treinoId]: next };
+    });
+
+  const salvarEdicaoTreino = async (treinoId) => {
+    const novoNome = editBufferTreino[treinoId]?.trim();
+    if (!novoNome) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/workouts/${treinoId}`, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ nome: novoNome }),
+      });
+      const updatedWorkout = await res.json();
+      setTreinos((prev) =>
+        prev.map((t) => (t._id === treinoId ? updatedWorkout : t))
+      );
+      setEditandoTreino((prev) => ({ ...prev, [treinoId]: false }));
+      setEditBufferTreino((b) => {
+        const nb = { ...b };
+        delete nb[treinoId];
+        return nb;
+      });
+    } catch (err) {
+      console.error("Erro ao editar treino:", err);
+    }
+  };
+
+  // ===== Funções de Exercício =====
+  const toggleExForm = (treinoId) =>
+    setExFormVisivel((prev) => ({ ...prev, [treinoId]: !prev[treinoId] }));
+
+  const adicionarExercicio = async (treinoId) => {
+    const data = novoExercicio[treinoId] || {};
+    const nome = (data.nome || "").trim();
+    if (!nome) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/workouts/${treinoId}/exercises`,
+        {
+          method: "POST",
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            nome: data.nome,
+            series: parseInt(data.series) || 0,
+            repeticoes: parseInt(data.repeticoes) || 0,
+            carga: parseFloat(data.carga) || 0,
+            observacoes: data.observacoes || "",
+          }),
+        }
+      );
+      const updatedWorkout = await res.json();
+      setTreinos((prev) =>
+        prev.map((t) => (t._id === treinoId ? updatedWorkout : t))
+      );
+      setNovoExercicio((prev) => ({ ...prev, [treinoId]: {} }));
+      setExFormVisivel((prev) => ({ ...prev, [treinoId]: false }));
+    } catch (err) {
+      console.error("Erro ao adicionar exercício:", err);
+    }
+  };
+
+  const deletarExercicio = async (treinoId, exId) => {
+    if (!window.confirm("Tem certeza que deseja deletar este exercício?")) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/workouts/${treinoId}/exercises/${exId}`,
+        {
+          method: "DELETE",
+          headers: getAuthHeaders(),
+        }
+      );
+      const updatedWorkout = await res.json();
+      setTreinos((prev) =>
+        prev.map((t) => (t._id === treinoId ? updatedWorkout : t))
+      );
+    } catch (err) {
+      console.error("Erro ao deletar exercício:", err);
+    }
+  };
+
+  const toggleEditarEx = (exId) =>
+    setEditandoEx((prev) => ({ ...prev, [exId]: !prev[exId] }));
+
+  const updateCampoEx = (treinoId, exId, campo, valor) => {
+    setTreinos((prev) =>
+      prev.map((t) => {
+        if (t._id !== treinoId) return t;
+        return {
+          ...t,
+          exercicios: t.exercicios.map((ex) => {
+            if (ex._id !== exId) return ex;
+            if (["series", "repeticoes"].includes(campo)) {
+              const raw = String(valor).replace(/\D/g, "");
+              return { ...ex, [campo]: raw === "" ? 0 : parseInt(raw, 10) };
+            }
+            if (campo === "carga") {
+              const raw = String(valor).replace(",", ".").replace(/[^0-9.]/g, "");
+              return { ...ex, carga: raw === "" ? 0 : parseFloat(raw) || 0 };
+            }
+            return { ...ex, [campo]: valor };
+          }),
+        };
+      })
+    );
+  };
+
+  const salvarEdicaoEx = async (treinoId, exId) => {
+    const ex = treinos
+      .find((t) => t._id === treinoId)
+      ?.exercicios.find((e) => e._id === exId);
+    if (!ex) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/workouts/${treinoId}/exercises/${exId}`,
+        {
+          method: "PUT",
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            nome: ex.nome,
+            series: ex.series,
+            repeticoes: ex.repeticoes,
+            carga: ex.carga,
+            observacoes: ex.observacoes,
+          }),
+        }
+      );
+      const updatedWorkout = await res.json();
+      setTreinos((prev) =>
+        prev.map((t) => (t._id === treinoId ? updatedWorkout : t))
+      );
+      toggleEditarEx(exId);
+    } catch (err) {
+      console.error("Erro ao editar exercício:", err);
+    }
+  };
+
+  // ===== Histórico =====
+  const toggleHistorico = (treinoId) =>
+    setHistoricoVisivel((prev) => ({ ...prev, [treinoId]: !prev[treinoId] }));
+
+  const toggleConcluir = (treinoId) =>
+    setConcluirVisivel((prev) => ({ ...prev, [treinoId]: !prev[treinoId] }));
+
+  const toggleObservacao = (exId) =>
+    setObservacaoVisivel((prev) => ({ ...prev, [exId]: !prev[exId] }));
+
+  const toggleMenuTreino = (treinoId) =>
+    setMenuTreinoVisivel((prev) => ({ ...prev, [treinoId]: !prev[treinoId] }));
+
+  const concluirTreino = async (treinoId) => {
+    const obs = novoHistoricoObs[treinoId] || "";
+    const data = new Date().toLocaleString();
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/workouts/${treinoId}/history`,
+        {
+          method: "POST",
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ data, observacoes: obs }),
+        }
+      );
+      const updatedWorkout = await res.json();
+      setTreinos((prev) =>
+        prev.map((t) => (t._id === treinoId ? updatedWorkout : t))
+      );
+      setNovoHistoricoObs((prev) => ({ ...prev, [treinoId]: "" }));
+      setConcluirVisivel((prev) => ({ ...prev, [treinoId]: false }));
+      setSuccessPopupTreino((prev) => ({ ...prev, [treinoId]: true }));
+      setTimeout(() => {
+        setSuccessPopupTreino((prev) => ({ ...prev, [treinoId]: false }));
+      }, 2000);
+    } catch (err) {
+      console.error("Erro ao registrar treino:", err);
+    }
+  };
+
+  const deletarHistorico = async (treinoId, histId) => {
+    if (!window.confirm("Deseja realmente excluir este registro do histórico?")) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/workouts/${treinoId}/history/${histId}`,
+        {
+          method: "DELETE",
+          headers: getAuthHeaders(),
+        }
+      );
+      const updatedWorkout = await res.json();
+      setTreinos((prev) =>
+        prev.map((t) => (t._id === treinoId ? updatedWorkout : t))
+      );
+    } catch (err) {
+      console.error("Erro ao deletar histórico:", err);
+    }
+  };
+
+  // ===== Reordenação de Exercícios =====
+  const moverExercicio = (treinoId, exercicioIndex, direcao) => {
+    const treinosClone = JSON.parse(JSON.stringify(treinos));
+    const treino = treinosClone.find((t) => t._id === treinoId);
+    
+    if (!treino || !treino.exercicios || treino.exercicios.length <= 1) return;
+    
+    const novoIndex = direcao === 'up' ? exercicioIndex - 1 : exercicioIndex + 1;
+    
+    // Verifica se o novo índice é válido
+    if (novoIndex < 0 || novoIndex >= treino.exercicios.length) return;
+    
+    // Troca as posições
+    const exercicioAtual = treino.exercicios[exercicioIndex];
+    const exercicioTroca = treino.exercicios[novoIndex];
+    
+    treino.exercicios[exercicioIndex] = exercicioTroca;
+    treino.exercicios[novoIndex] = exercicioAtual;
+    
+    setTreinos(treinosClone);
+  };
+
+  // ===== Drag & Drop =====
+  const onDragEnd = (result) => {
+    const { source, destination, type } = result;
+    
+    // Se não há destino válido, não faz nada
+    if (!destination) return;
+    
+    // Se a origem e destino são iguais, não faz nada
+    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+
+    // Fecha todos os menus ao mover qualquer elemento
+    setMenuTreinoVisivel({});
+
+    if (type === "TREINO") {
+      const itens = Array.from(treinos);
+      const [removido] = itens.splice(source.index, 1);
+      itens.splice(destination.index, 0, removido);
+      setTreinos(itens);
+      return;
+    }
+
+    if (type === "EXERCICIO") {
+      const origemId = source.droppableId;
+      const destinoId = destination.droppableId;
+      
+      // Cria um clone mais profundo para evitar problemas de referência
+      const treinosClone = JSON.parse(JSON.stringify(treinos));
+      
+      const treinoOrigem = treinosClone.find((t) => t._id === origemId);
+      const treinoDestino = treinosClone.find((t) => t._id === destinoId);
+      
+      if (!treinoOrigem || !treinoDestino) return;
+      
+      // Remove o exercício da origem
+      const [movido] = treinoOrigem.exercicios.splice(source.index, 1);
+      
+      // Adiciona o exercício no destino
+      treinoDestino.exercicios.splice(destination.index, 0, movido);
+      
+      setTreinos(treinosClone);
+    }
+  };
+
+  // ===== JSX =====
+  return (
+    <div className="min-h-screen p-6 max-w-3xl mx-auto relative">
+      <DynamicBackground />
+      <div className="flex items-center justify-between mb-6 relative z-10">
+        <h1 className="text-2xl font-bold text-white">Meus Treinos</h1>
+        <button
+          onClick={sair}
+          className="px-3 py-1 rounded bg-red-500/80 backdrop-blur-sm text-white text-sm hover:bg-red-600/80 transition-colors border border-red-400/30"
+        >
+          Sair
+        </button>
+      </div>
+
+      {/* Botão adicionar treino */}
+      {!adicionarTreinoVisivel && (
+        <button
+          onClick={() => setAdicionarTreinoVisivel(true)}
+          className="mb-4 px-3 py-1 rounded bg-blue-500/80 backdrop-blur-sm text-white text-sm hover:bg-blue-600/80 transition-colors border border-blue-400/30 relative z-10"
+        >
+          + Adicionar Treino
+        </button>
+      )}
+
+      {/* Input de novo treino */}
+      {adicionarTreinoVisivel && (
+        <div className="flex gap-2 mb-5 relative z-10">
+          <input
+            type="text"
+            placeholder="Nome do treino"
+            value={novoTreinoNome}
+            onChange={(e) => setNovoTreinoNome(e.target.value)}
+            className="border border-white/20 rounded p-1 w-48 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <button
+            onClick={adicionarTreino}
+            className="px-2 py-0.5 rounded bg-green-500/80 backdrop-blur-sm text-white text-xs hover:bg-green-600/80 transition-colors border border-green-400/30"
+          >
+            💾
+          </button>
+          <button
+            onClick={() => setAdicionarTreinoVisivel(false)}
+            className="px-2 py-0.5 rounded bg-red-500/80 backdrop-blur-sm text-white text-xs hover:bg-red-600/80 transition-colors border border-red-400/30"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      <div>
+        {treinos.map((treino, i) => (
+          <div
+            key={treino._id}
+            className="mb-4 rounded border bg-black/20 backdrop-blur-sm border-white/10 relative z-10"
+          >
+            {/* Cabeçalho do treino */}
+            <div className="flex items-center justify-between p-2">
+              <div className="flex items-center gap-2">
+
+                          {editandoTreino[treino._id] ? (
+                            <div className="flex items-center gap-1">
+                              <input
+                                type="text"
+                                value={editBufferTreino[treino._id] ?? treino.nome}
+                                onChange={(e) =>
+                                  setEditBufferTreino((b) => ({
+                                    ...b,
+                                    [treino._id]: e.target.value,
+                                  }))
+                                }
+                                className="border border-white/20 rounded p-1 w-48 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                              />
+                              <button
+                                onClick={() => salvarEdicaoTreino(treino._id)}
+                                className="px-1 py-0.5 rounded bg-green-500/80 backdrop-blur-sm text-white text-xs hover:bg-green-600/80 transition-colors border border-green-400/30"
+                              >
+                                💾
+                              </button>
+                              <button
+                                onClick={() => toggleEditTreino(treino._id)}
+                                className="px-1 py-0.5 rounded bg-red-500/80 backdrop-blur-sm text-white text-xs hover:bg-red-600/80 transition-colors border border-red-400/30"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => toggleExpandir(treino._id)}
+                              className="font-semibold text-sm text-white"
+                            >
+                              {treinoExpandido[treino._id] ? "▼" : "►"} {treino.nome}
+                            </button>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleMenuTreino(treino._id);
+                          }}
+                          className="treino-menu-button w-4 h-4 rounded-full bg-white/20 hover:bg-white/40 transition-colors flex items-center justify-center"
+                        >
+                          <div className="flex gap-0.5">
+                            <div className="w-1 h-1 rounded-full bg-white"></div>
+                            <div className="w-1 h-1 rounded-full bg-white"></div>
+                          </div>
+                        </button>
+                      </div>
+
+                      {/* Conteúdo expandido */}
+                      {treinoExpandido[treino._id] && (
+                        <div className="p-2 pt-0">
+                          {/* Botões */}
+                          <div className="mb-3 flex justify-between items-center">
+                            {/* Botão Adicionar Exercício - Sempre Visível */}
+                            <button
+                              onClick={() => toggleExForm(treino._id)}
+                              className="px-1.5 py-0.5 rounded bg-blue-500/60 backdrop-blur-sm text-white text-xs hover:bg-blue-600/60 transition-colors border border-blue-400/20"
+                            >
+                              +
+                            </button>
+
+                            {/* Outros Botões - Aparecem à Direita */}
+                            {menuTreinoVisivel[treino._id] && (
+                              <div className="treino-menu-buttons flex gap-1">
+                                <button
+                                  onClick={() => {
+                                    toggleConcluir(treino._id);
+                                    setMenuTreinoVisivel(prev => ({ ...prev, [treino._id]: false }));
+                                  }}
+                                  className="px-1.5 py-0.5 rounded bg-green-500/60 backdrop-blur-sm text-white text-xs hover:bg-green-600/60 transition-colors border border-green-400/20"
+                                >
+                                  ✅
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    toggleEditTreino(treino._id);
+                                    setMenuTreinoVisivel(prev => ({ ...prev, [treino._id]: false }));
+                                  }}
+                                  className="px-1.5 py-0.5 rounded bg-yellow-500/60 backdrop-blur-sm text-white text-xs hover:bg-yellow-600/60 transition-colors border border-yellow-400/20"
+                                >
+                                  ✎
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    toggleHistorico(treino._id);
+                                    setMenuTreinoVisivel(prev => ({ ...prev, [treino._id]: false }));
+                                  }}
+                                  className="px-1.5 py-0.5 rounded bg-white/95 backdrop-blur-sm text-white text-[10px] hover:bg-white transition-colors border border-white/70"
+                                >
+                                  🕘
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    deletarTreino(treino._id);
+                                    setMenuTreinoVisivel(prev => ({ ...prev, [treino._id]: false }));
+                                  }}
+                                  className="px-1.5 py-0.5 rounded bg-red-500/60 backdrop-blur-sm text-white text-xs hover:bg-red-600/60 transition-colors border border-red-400/20"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          {/* Finalizar Treino */}
+
+                          {/* Mensagem de Sucesso para este treino */}
+                          {successPopupTreino[treino._id] && (
+                            <div className="absolute top-0 left-0 right-0 bg-green-500/90 backdrop-blur-sm text-white px-3 py-2 rounded-t shadow-lg z-50">
+                              Treino registrado com sucesso!
+                            </div>
+                          )}
+
+                          {concluirVisivel[treino._id] && (
+                            <div className="flex gap-1 mb-3">
+                              <input
+                                type="text"
+                                placeholder="Observações"
+                                value={novoHistoricoObs[treino._id] || ""}
+                                onChange={(e) =>
+                                  setNovoHistoricoObs((prev) => ({
+                                    ...prev,
+                                    [treino._id]: e.target.value,
+                                  }))
+                                }
+                                className="border border-white/20 rounded p-1 flex-1 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                              />
+                              <button
+                                onClick={() => concluirTreino(treino._id)}
+                                className="px-1 py-0.5 rounded bg-green-500/80 backdrop-blur-sm text-white text-xs hover:bg-green-600/80 transition-colors border border-green-400/30"
+                              >
+                                Salvar
+                              </button>
+                              <button
+                                onClick={() => toggleConcluir(treino._id)}
+                                className="px-1 py-0.5 rounded bg-red-500/80 backdrop-blur-sm text-white text-xs hover:bg-red-600/80 transition-colors border border-red-400/30"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Adicionar Exercício */}
+                          {exFormVisivel[treino._id] && (
+                            <div className="mb-2 flex gap-1 flex-wrap">
+                              <input
+                                type="text"
+                                placeholder="Nome"
+                                value={novoExercicio[treino._id]?.nome || ""}
+                                onChange={(e) =>
+                                  setNovoExercicio((prev) => ({
+                                    ...prev,
+                                    [treino._id]: {
+                                      ...prev[treino._id],
+                                      nome: e.target.value,
+                                    },
+                                  }))
+                                }
+                                maxLength={30}
+                                className="border border-white/20 rounded p-1 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-24"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Séries"
+                                value={novoExercicio[treino._id]?.series || ""}
+                                onChange={(e) =>
+                                  setNovoExercicio((prev) => ({
+                                    ...prev,
+                                    [treino._id]: {
+                                      ...prev[treino._id],
+                                      series: e.target.value,
+                                    },
+                                  }))
+                                }
+                                className="border border-white/20 rounded p-1 w-16 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Repetições"
+                                value={novoExercicio[treino._id]?.repeticoes || ""}
+                                onChange={(e) =>
+                                  setNovoExercicio((prev) => ({
+                                    ...prev,
+                                    [treino._id]: {
+                                      ...prev[treino._id],
+                                      repeticoes: e.target.value,
+                                    },
+                                  }))
+                                }
+                                className="border border-white/20 rounded p-1 w-20 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Carga"
+                                value={novoExercicio[treino._id]?.carga || ""}
+                                onChange={(e) =>
+                                  setNovoExercicio((prev) => ({
+                                    ...prev,
+                                    [treino._id]: {
+                                      ...prev[treino._id],
+                                      carga: e.target.value,
+                                    },
+                                  }))
+                                }
+                                className="border border-white/20 rounded p-1 w-16 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                              />
+                              <input
+                                type="text"
+                                placeholder="Observações"
+                                value={novoExercicio[treino._id]?.observacoes || ""}
+                                onChange={(e) =>
+                                  setNovoExercicio((prev) => ({
+                                    ...prev,
+                                    [treino._id]: {
+                                      ...prev[treino._id],
+                                      observacoes: e.target.value,
+                                    },
+                                  }))
+                                }
+                                maxLength={80}
+                                className="border border-white/20 rounded p-1 w-48 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                              />
+                              <button
+                                onClick={() => adicionarExercicio(treino._id)}
+                                className="px-1 py-0.5 rounded bg-green-500/80 backdrop-blur-sm text-white text-xs hover:bg-green-600/80 transition-colors border border-green-400/30"
+                              >
+                                💾
+                              </button>
+                              <button
+                                onClick={() => toggleExForm(treino._id)}
+                                className="px-1 py-0.5 rounded bg-red-500/80 backdrop-blur-sm text-white text-xs hover:bg-red-600/80 transition-colors border border-red-400/30"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Lista de Exercícios */}
+                          <div className="space-y-1">
+                            {treino.exercicios.map((ex, idx) => (
+                              <div
+                                key={ex._id}
+                                className="mb-1 p-1 border border-white/10 rounded flex justify-between items-center bg-black/10 backdrop-blur-sm"
+                              >
+                                <div className="flex items-center gap-2">
+                                  {/* Botões de Reordenação */}
+                                  <div className="flex flex-col gap-0.5">
+                                    <button
+                                      onClick={() => moverExercicio(treino._id, idx, 'up')}
+                                      disabled={idx === 0}
+                                      className="w-4 h-3 flex items-center justify-center text-xs text-white/60 hover:text-white/80 disabled:text-white/20 disabled:cursor-not-allowed transition-colors"
+                                      title="Mover para cima"
+                                    >
+                                      ▲
+                                    </button>
+                                    <button
+                                      onClick={() => moverExercicio(treino._id, idx, 'down')}
+                                      disabled={idx === treino.exercicios.length - 1}
+                                      className="w-4 h-3 flex items-center justify-center text-xs text-white/60 hover:text-white/80 disabled:text-white/20 disabled:cursor-not-allowed transition-colors"
+                                      title="Mover para baixo"
+                                    >
+                                      ▼
+                                    </button>
+                                  </div>
+
+                                            {editandoEx[ex._id] ? (
+                                              <div className="flex flex-col gap-2">
+                                                <div className="flex gap-1 flex-wrap">
+                                                  <input
+                                                    value={ex.nome}
+                                                    onChange={(e) =>
+                                                      updateCampoEx(treino._id, ex._id, "nome", e.target.value)
+                                                    }
+                                                    maxLength={30}
+                                                    className="border border-white/20 rounded p-1 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-32"
+                                                  />
+                                                  <input
+                                                    type="number"
+                                                    value={ex.series}
+                                                    onChange={(e) =>
+                                                      updateCampoEx(treino._id, ex._id, "series", e.target.value)
+                                                    }
+                                                    className="border border-white/20 rounded p-1 w-16 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                  />
+                                                  <input
+                                                    type="number"
+                                                    value={ex.repeticoes}
+                                                    onChange={(e) =>
+                                                      updateCampoEx(treino._id, ex._id, "repeticoes", e.target.value)
+                                                    }
+                                                    className="border border-white/20 rounded p-1 w-20 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                  />
+                                                  <input
+                                                    type="number"
+                                                    value={ex.carga}
+                                                    onChange={(e) =>
+                                                      updateCampoEx(treino._id, ex._id, "carga", e.target.value)
+                                                    }
+                                                    className="border border-white/20 rounded p-1 w-16 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                  />
+                                                  <input
+                                                    type="text"
+                                                    value={ex.observacoes}
+                                                    onChange={(e) =>
+                                                      updateCampoEx(treino._id, ex._id, "observacoes", e.target.value)
+                                                    }
+                                                    maxLength={80}
+                                                    className="border border-white/20 rounded p-1 w-48 text-sm bg-white/10 text-white placeholder-white backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                  />
+                                                </div>
+                                                <div className="flex gap-1">
+                                                  <button
+                                                    onClick={() => salvarEdicaoEx(treino._id, ex._id)}
+                                                    className="px-1 py-0.5 rounded bg-green-500/80 backdrop-blur-sm text-white text-xs hover:bg-green-600/80 transition-colors border border-green-400/30"
+                                                  >
+                                                    💾
+                                                  </button>
+                                                  <button
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      deletarExercicio(treino._id, ex._id);
+                                                    }}
+                                                    className="px-1 py-0.5 rounded bg-red-500/80 backdrop-blur-sm text-white text-xs hover:bg-red-600/80 transition-colors border border-red-400/30"
+                                                  >
+                                                    ✕
+                                                  </button>
+                                                </div>
+                                              </div>
+                                            ) : (
+                                              <div 
+                                                className="flex gap-2 text-white cursor-pointer hover:bg-white/5 rounded p-1 transition-colors flex-1"
+                                                onClick={() => toggleEditarEx(ex._id)}
+                                              >
+                                                <span>{ex.nome}</span>
+                                                <span>{ex.series}x{ex.repeticoes}</span>
+                                                <span>{ex.carga}kg</span>
+                                                {ex.observacoes && (
+                                                  <button
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      toggleObservacao(ex._id);
+                                                    }}
+                                                    className="text-blue-300 hover:text-blue-100 text-xs underline"
+                                                  >
+                                                    {observacaoVisivel[ex._id] ? 'Ocultar obs' : 'Ver obs'}
+                                                  </button>
+                                                )}
+                                              </div>
+                                            )}
+                                          </div>
+
+                                        </div>
+                                      )}
+                                    </Draggable>
+                                    
+                                    {/* Observação expandida */}
+                                    {observacaoVisivel[ex._id] && ex.observacoes && (
+                                      <div className="mt-1 p-2 bg-black/20 rounded border border-white/10 max-w-full">
+                                        <p className="text-white text-xs italic break-words">
+                                          <strong>Obs:</strong> {ex.observacoes.length > 150 ? ex.observacoes.substring(0, 150) + '...' : ex.observacoes}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </Draggable>
+                                ))}
+                                {provided.placeholder}
+                              </div>
+                            )}
+                          </Droppable>
+
+                          {/* Histórico */}
+                          {historicoVisivel[treino._id] && (
+                            <div className="mt-2 border-t border-white/30 pt-2">
+                              {treino.historico.map((h) => (
+                                <div key={h._id} className="flex justify-between mb-1 text-sm">
+                                  <span className="text-white/95">{h.data}: {h.observacoes}</span>
+                                  <button
+                                    onClick={() => deletarHistorico(treino._id, h._id)}
+                                    className="px-1 py-0.5 rounded bg-red-500/80 backdrop-blur-sm text-white text-xs hover:bg-red-600/80 transition-colors border border-red-400/30"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
