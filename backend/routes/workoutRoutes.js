@@ -11,7 +11,7 @@ import {
   deleteHistory,
 } from "../controllers/workoutController.js";
 
-import authMiddleware from "../../utils/middleware.js"
+import authMiddleware from "../middleware.js"
 
 const router = express.Router();
 
