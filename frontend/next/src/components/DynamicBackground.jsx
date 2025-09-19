@@ -33,8 +33,8 @@ export default function DynamicBackground({ modoClaro = false }) {
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
+        this.vx = (Math.random() - 0.5) * 0.2;
+        this.vy = (Math.random() - 0.5) * 0.2;
         this.size = Math.random() * 3 + 1;
         this.color = colors[Math.floor(Math.random() * colors.length)];
         this.alpha = Math.random() * 0.5 + 0.2;
@@ -101,11 +101,11 @@ export default function DynamicBackground({ modoClaro = false }) {
           const dy = particles[i].y - particles[j].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
 
-          if (distance < 100) {
+          if (distance < 80) {
             ctx.save();
-            ctx.globalAlpha = (100 - distance) / 100 * (modoClaro ? 0.12 : 0.15);
-            ctx.strokeStyle = modoClaro ? '#9ca3af' : '#ffffff';
-            ctx.lineWidth = modoClaro ? 0.5 : 0.5;
+            ctx.globalAlpha = (80 - distance) / 80 * (modoClaro ? 0.2 : 0.15);
+            ctx.strokeStyle = modoClaro ? '#6b7280' : '#ffffff';
+            ctx.lineWidth = modoClaro ? 0.6 : 0.5;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
