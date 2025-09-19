@@ -14,7 +14,7 @@ export default function DynamicBackground({ modoClaro = false }) {
 
     // Configurações
     const particles = [];
-    const particleCount = 50;
+    const particleCount = 30;
     const colors = modoClaro 
       ? ['#e0e7ff', '#c7d2fe', '#a5b4fc', '#818cf8', '#6366f1'] // Cores claras
       : ['#1a1a2e', '#16213e', '#0f3460', '#533483', '#7209b7']; // Cores escuras
@@ -38,7 +38,7 @@ export default function DynamicBackground({ modoClaro = false }) {
         this.size = Math.random() * 3 + 1;
         this.color = colors[Math.floor(Math.random() * colors.length)];
         this.alpha = Math.random() * 0.5 + 0.2;
-        this.life = Math.random() * 100 + 50;
+        this.life = Math.random() * 200 + 100;
         this.maxLife = this.life;
       }
 
