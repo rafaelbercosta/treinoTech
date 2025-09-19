@@ -42,7 +42,7 @@ export default function ExerciseItem({
 
   return (
     <div
-      className={`p-2 rounded border backdrop-blur-sm relative transition-all duration-200 ${
+      className={`p-2 rounded border backdrop-blur-sm relative transition-all duration-300 ease-in-out ${
         swipeActive[exercicio._id] ? 'scale-105 shadow-lg' : ''
       } ${
         modoClaro ? 'bg-gray-50 border-gray-300' : 'bg-white/10 border-white/20'
@@ -50,6 +50,8 @@ export default function ExerciseItem({
         modoSwipeAtivo ? 'shadow-xl ring-1 ring-blue-400/60' : ''
       } ${
         exercicio.metodoIntensificacao && !editandoEx[exercicio._id] ? 'shadow-md ring-1 ring-orange-400/50 bg-gradient-to-r from-orange-50/20 to-yellow-50/20' : ''
+      } ${
+        exercicioExpandido[exercicio._id] ? 'shadow-lg ring-1 ring-blue-300/30' : ''
       }`}
       onTouchStart={(e) => onHandleTouchStart(e, exercicio._id, treinoId, exercicioIndex)}
       onTouchMove={(e) => onHandleTouchMove(e, exercicio._id)}
@@ -274,7 +276,11 @@ export default function ExerciseItem({
         </div>
       ) : (
         <div 
-          className="cursor-pointer hover:opacity-80 transition-opacity"
+          className={`cursor-pointer transition-all duration-200 hover:opacity-80 ${
+            exercicioExpandido[exercicio._id] 
+              ? 'hover:scale-[1.02]' 
+              : 'hover:scale-[1.01]'
+          }`}
           onClick={() => {
             fecharFormulariosAoEditar();
             onToggleExpandirExercicio(exercicio._id);
@@ -282,7 +288,13 @@ export default function ExerciseItem({
           title={exercicioExpandido[exercicio._id] ? "Clique para minimizar" : "Clique para expandir"}
         >
           {/* Conteúdo minimizado */}
-          {!exercicioExpandido[exercicio._id] && (
+          <div 
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              exercicioExpandido[exercicio._id] 
+                ? 'max-h-0 opacity-0 transform scale-95' 
+                : 'max-h-20 opacity-100 transform scale-100'
+            }`}
+          >
             <div className="flex items-center justify-between w-full">
               <div className="flex-1 min-w-0 max-w-[60%]">
                 <div className="flex items-center gap-2">
@@ -294,7 +306,7 @@ export default function ExerciseItem({
                     {exercicio.nome}
                   </h4>
                   {exercicio.metodoIntensificacao && (
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 transition-all duration-200 ${
                       modoClaro 
                         ? 'bg-orange-100 text-orange-700' 
                         : 'bg-orange-900/30 text-orange-300'
@@ -306,33 +318,39 @@ export default function ExerciseItem({
               </div>
               
               <div className="flex items-center gap-3 text-sm flex-shrink-0">
-                <span className={`font-medium ${modoClaro ? 'text-gray-700' : 'text-gray-200'}`}>
+                <span className={`font-medium transition-colors duration-200 ${modoClaro ? 'text-gray-700' : 'text-gray-200'}`}>
                   {exercicio.series}s
                 </span>
-                <span className={`font-medium ${modoClaro ? 'text-gray-700' : 'text-gray-200'}`}>
+                <span className={`font-medium transition-colors duration-200 ${modoClaro ? 'text-gray-700' : 'text-gray-200'}`}>
                   {exercicio.repeticoes}r
                 </span>
                 {exercicio.carga > 0 && (
-                  <span className={`font-medium ${modoClaro ? 'text-gray-700' : 'text-gray-200'}`}>
+                  <span className={`font-medium transition-colors duration-200 ${modoClaro ? 'text-gray-700' : 'text-gray-200'}`}>
                     {exercicio.carga}kg
                   </span>
                 )}
               </div>
             </div>
-          )}
+          </div>
           
           {/* Seção expandida com informações detalhadas */}
-          {exercicioExpandido[exercicio._id] && (
+          <div 
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              exercicioExpandido[exercicio._id] 
+                ? 'max-h-96 opacity-100 transform scale-100' 
+                : 'max-h-0 opacity-0 transform scale-95'
+            }`}
+          >
             <div className="w-full">
               {/* Nome do exercício expandido */}
               <div className="mb-3">
-                <h4 className={`font-bold text-base ${modoClaro ? 'text-blue-700' : 'text-blue-300'}`}>
+                <h4 className={`font-bold text-base transition-colors duration-200 ${modoClaro ? 'text-blue-700' : 'text-blue-300'}`}>
                   {exercicio.nome}
                 </h4>
               </div>
               
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
+                <div className="transition-all duration-200 delay-75">
                   <span className={`font-medium ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
                     Séries:
                   </span>
@@ -340,7 +358,7 @@ export default function ExerciseItem({
                     {exercicio.series}
                   </span>
                 </div>
-                <div>
+                <div className="transition-all duration-200 delay-100">
                   <span className={`font-medium ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
                     Repetições:
                   </span>
@@ -348,7 +366,7 @@ export default function ExerciseItem({
                     {exercicio.repeticoes}
                   </span>
                 </div>
-                <div>
+                <div className="transition-all duration-200 delay-125">
                   <span className={`font-medium ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
                     Carga:
                   </span>
@@ -356,7 +374,7 @@ export default function ExerciseItem({
                     {exercicio.carga}kg
                   </span>
                 </div>
-                <div>
+                <div className="transition-all duration-200 delay-150">
                   <span className={`font-medium ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
                     Descanso:
                   </span>
@@ -368,7 +386,7 @@ export default function ExerciseItem({
               
               {/* Método de intensificação */}
               {exercicio.metodoIntensificacao && (
-                <div className="mt-3">
+                <div className="mt-3 transition-all duration-200 delay-175">
                   <span className={`font-medium text-sm ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
                     Método de intensificação:
                   </span>
@@ -380,7 +398,7 @@ export default function ExerciseItem({
               
               {/* Observações */}
               {exercicio.observacoes && (
-                <div className="mt-3">
+                <div className="mt-3 transition-all duration-200 delay-200">
                   <span className={`font-medium text-sm ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
                     Observações:
                   </span>
@@ -391,13 +409,13 @@ export default function ExerciseItem({
               )}
               
               {/* Botão de editar */}
-              <div className="mt-3 flex justify-end">
+              <div className="mt-3 flex justify-end transition-all duration-200 delay-225">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onToggleEditarEx(exercicio._id);
                   }}
-                  className={`px-3 py-1 text-xs font-medium rounded transition-all duration-300 border-0 outline-none bg-transparent ${
+                  className={`px-3 py-1 text-xs font-medium rounded transition-all duration-300 border-0 outline-none bg-transparent hover:scale-105 ${
                     modoClaro
                       ? 'text-gray-600 hover:text-gray-800'
                       : 'text-gray-400 hover:text-gray-300'
@@ -408,7 +426,7 @@ export default function ExerciseItem({
                 </button>
               </div>
             </div>
-          )}
+          </div>
           
           {/* Botões de ação */}
           <div className="flex items-center gap-1 ml-2">
