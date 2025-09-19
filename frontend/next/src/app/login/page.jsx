@@ -40,7 +40,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="flex-1 flex flex-col items-center justify-between pt-16 pb-4 relative">
+      <div className="flex-1 flex flex-col items-center justify-between pt-28 pb-4 relative">
         <DynamicBackground modoClaro={modoClaro} />
         <div className="w-full max-w-md p-8 rounded-lg">
           <h2 className={`text-2xl font-bold text-center mb-6 ${modoClaro ? 'text-gray-900' : 'text-white'}`}>Login</h2>
