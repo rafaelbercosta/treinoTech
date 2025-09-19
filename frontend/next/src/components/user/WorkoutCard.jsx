@@ -146,9 +146,11 @@ export default function WorkoutCard({
           ) : (
             <button
               onClick={() => onToggleExpandir(treino._id)}
-              className={`font-semibold text-base ${modoClaro ? 'text-gray-900' : 'text-white'}`}
+              className={`font-semibold text-base transition-all duration-200 hover:scale-105 ${modoClaro ? 'text-gray-900' : 'text-white'}`}
             >
-              {treinoExpandido[treino._id] ? "▼" : "►"} <strong>{treino.nome}</strong>
+              <span className={`inline-block transition-transform duration-200 ${treinoExpandido[treino._id] ? 'rotate-90' : 'rotate-0'}`}>
+                ►
+              </span> <strong>{treino.nome}</strong>
             </button>
           )}
         </div>
@@ -172,23 +174,35 @@ export default function WorkoutCard({
               e.stopPropagation();
               onToggleMenuTreino(treino._id);
             }}
-            className={`treino-menu-button w-6 h-6 rounded-full transition-colors flex items-center justify-center ${
+            className={`treino-menu-button w-6 h-6 rounded-full transition-all duration-200 flex items-center justify-center hover:scale-110 ${
               modoClaro ? 'bg-gray-300 hover:bg-gray-400' : 'bg-white/20 hover:bg-white/40'
             }`}
           >
             <div className="flex gap-0.5">
-              <div className={`w-1 h-1 rounded-full ${modoClaro ? 'bg-gray-800' : 'bg-white'}`}></div>
-              <div className={`w-1 h-1 rounded-full ${modoClaro ? 'bg-gray-800' : 'bg-white'}`}></div>
+              <div className={`w-1 h-1 rounded-full transition-all duration-200 ${modoClaro ? 'bg-gray-800' : 'bg-white'}`}></div>
+              <div className={`w-1 h-1 rounded-full transition-all duration-200 ${modoClaro ? 'bg-gray-800' : 'bg-white'}`}></div>
             </div>
           </button>
         </div>
       </div>
 
       {/* Conteúdo expandido */}
-      {treinoExpandido[treino._id] && (
+      <div 
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          treinoExpandido[treino._id] 
+            ? 'max-h-screen opacity-100 transform scale-100' 
+            : 'max-h-0 opacity-0 transform scale-95'
+        }`}
+      >
         <div className="p-4 pt-0">
           {/* Botões de ação - só aparecem quando o menu está visível */}
-          {menuTreinoVisivel[treino._id] && (
+          <div 
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              menuTreinoVisivel[treino._id] 
+                ? 'max-h-20 opacity-100 transform scale-100' 
+                : 'max-h-0 opacity-0 transform scale-95'
+            }`}
+          >
             <div className="flex gap-2 mb-4">
               <button
                 onClick={() => {
@@ -235,23 +249,38 @@ export default function WorkoutCard({
                 ✕ Excluir
               </button>
             </div>
-          )}
+          </div>
 
           {/* Histórico */}
-          {historicoVisivel[treino._id] && (
-            <WorkoutHistory
-              treino={treino}
-              modoClaro={modoClaro}
-              onDeletarHistorico={onDeletarHistorico}
-              onFecharHistorico={(treinoId) => setHistoricoVisivel((prev) => ({ ...prev, [treinoId]: false }))}
-            />
-          )}
+          <div 
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              historicoVisivel[treino._id] 
+                ? 'max-h-96 opacity-100 transform scale-100' 
+                : 'max-h-0 opacity-0 transform scale-95'
+            }`}
+          >
+            {historicoVisivel[treino._id] && (
+              <WorkoutHistory
+                treino={treino}
+                modoClaro={modoClaro}
+                onDeletarHistorico={onDeletarHistorico}
+                onFecharHistorico={(treinoId) => setHistoricoVisivel((prev) => ({ ...prev, [treinoId]: false }))}
+              />
+            )}
+          </div>
 
           {/* Formulário de registrar treino */}
-          {concluirVisivel[treino._id] && (
-            <div className={`p-3 rounded border backdrop-blur-sm mb-4 ${
-              modoClaro ? 'bg-gray-50 border-gray-300' : 'bg-white/10 border-white/20'
-            }`}>
+          <div 
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              concluirVisivel[treino._id] 
+                ? 'max-h-48 opacity-100 transform scale-100' 
+                : 'max-h-0 opacity-0 transform scale-95'
+            }`}
+          >
+            {concluirVisivel[treino._id] && (
+              <div className={`p-3 rounded border backdrop-blur-sm mb-4 ${
+                modoClaro ? 'bg-gray-50 border-gray-300' : 'bg-white/10 border-white/20'
+              }`}>
               <h4 className={`text-sm font-medium mb-2 ${modoClaro ? 'text-gray-700' : 'text-white'}`}>
                 Registrar Treino
               </h4>
@@ -285,28 +314,37 @@ export default function WorkoutCard({
                 </button>
               </div>
             </div>
-          )}
+            )}
+          </div>
 
           {/* Formulário de adicionar exercício */}
-          {exFormVisivel[treino._id] && (
-            <ExerciseForm
-              treinoId={treino._id}
-              novoExercicio={novoExercicio[treino._id] || {}}
-              setNovoExercicio={(updateFn) => {
-                if (typeof updateFn === 'function') {
-                  setNovoExercicio(prev => ({
-                    ...prev,
-                    [treino._id]: updateFn(prev[treino._id] || {})
-                  }));
-                } else {
-                  setNovoExercicio(prev => ({ ...prev, [treino._id]: updateFn }));
-                }
-              }}
-              onAdicionarExercicio={onAdicionarExercicio}
-              onCancelar={() => onToggleExForm(treino._id)}
-              modoClaro={modoClaro}
-            />
-          )}
+          <div 
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              exFormVisivel[treino._id] 
+                ? 'max-h-96 opacity-100 transform scale-100' 
+                : 'max-h-0 opacity-0 transform scale-95'
+            }`}
+          >
+            {exFormVisivel[treino._id] && (
+              <ExerciseForm
+                treinoId={treino._id}
+                novoExercicio={novoExercicio[treino._id] || {}}
+                setNovoExercicio={(updateFn) => {
+                  if (typeof updateFn === 'function') {
+                    setNovoExercicio(prev => ({
+                      ...prev,
+                      [treino._id]: updateFn(prev[treino._id] || {})
+                    }));
+                  } else {
+                    setNovoExercicio(prev => ({ ...prev, [treino._id]: updateFn }));
+                  }
+                }}
+                onAdicionarExercicio={onAdicionarExercicio}
+                onCancelar={() => onToggleExForm(treino._id)}
+                modoClaro={modoClaro}
+              />
+            )}
+          </div>
 
           {/* Lista de exercícios */}
           {treino.exercicios && treino.exercicios.length > 0 && (
@@ -358,7 +396,7 @@ export default function WorkoutCard({
             </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
