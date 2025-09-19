@@ -1,13 +1,9 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import dotenv from "dotenv";
 
 import authRoutes from "./routes/authRoutes.js";
 import workouts from "./routes/workoutRoutes.js";
-
-// Carrega as variáveis do .env
-dotenv.config();
 
 const app = express();
 
@@ -23,7 +19,7 @@ const PORT = process.env.PORT || 5000;
 
 // Conexão com o MongoDB Atlas
 mongoose
-  .connect(process.env.MONGO_URI, {
+  .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
