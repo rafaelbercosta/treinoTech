@@ -127,7 +127,7 @@ export default function ExerciseForm({
         {novoExercicio.metodoIntensificacao !== undefined && (
           <input
             type="text"
-            placeholder="Ex: Drop set, Superset, Rest-pause..."
+            placeholder="Ex: Drop set, Bi set, Piramidal..."
             value={novoExercicio.metodoIntensificacao || ""}
             onChange={(e) => handleInputChange('metodoIntensificacao', e.target.value)}
             className={`w-full p-2 text-sm border rounded backdrop-blur-sm focus:outline-none focus:ring-2 mt-2 ${

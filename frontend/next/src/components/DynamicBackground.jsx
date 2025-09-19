@@ -83,6 +83,7 @@ export default function DynamicBackground({ modoClaro = false }) {
       particles.push(new Particle());
     }
 
+
     // Função de animação
     const animate = () => {
       ctx.fillStyle = modoClaro ? '#f8fafc' : '#0a0a0a';
