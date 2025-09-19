@@ -16,7 +16,7 @@ export default function ExerciseForm({
   };
 
   return (
-    <div className={`p-3 rounded border backdrop-blur-sm mb-4 ${
+    <div className={`p-3 rounded border backdrop-blur-sm mb-4 overflow-visible ${
       modoClaro ? 'bg-gray-50 border-gray-300' : 'bg-white/10 border-white/20'
     }`}>
       <h4 className={`text-sm font-medium mb-2 ${modoClaro ? 'text-gray-700' : 'text-white'}`}>

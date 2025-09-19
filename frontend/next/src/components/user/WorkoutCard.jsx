@@ -255,7 +255,7 @@ export default function WorkoutCard({
           <div 
             className={`overflow-hidden transition-all duration-300 ease-in-out ${
               historicoVisivel[treino._id] 
-                ? 'max-h-96 opacity-100 transform scale-100' 
+                ? 'max-h-[400px] sm:max-h-96 opacity-100 transform scale-100' 
                 : 'max-h-0 opacity-0 transform scale-95'
             }`}
           >
@@ -273,7 +273,7 @@ export default function WorkoutCard({
           <div 
             className={`overflow-hidden transition-all duration-300 ease-in-out ${
               concluirVisivel[treino._id] 
-                ? 'max-h-48 opacity-100 transform scale-100' 
+                ? 'max-h-[300px] sm:max-h-48 opacity-100 transform scale-100' 
                 : 'max-h-0 opacity-0 transform scale-95'
             }`}
           >
@@ -321,7 +321,7 @@ export default function WorkoutCard({
           <div 
             className={`overflow-hidden transition-all duration-300 ease-in-out ${
               exFormVisivel[treino._id] 
-                ? 'max-h-96 opacity-100 transform scale-100' 
+                ? 'max-h-[500px] sm:max-h-96 opacity-100 transform scale-100' 
                 : 'max-h-0 opacity-0 transform scale-95'
             }`}
           >
