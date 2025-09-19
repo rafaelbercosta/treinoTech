@@ -11,6 +11,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Rota raiz para teste
+app.get("/api", (req, res) => {
+  res.json({ message: "API funcionando!", status: "ok" });
+});
+
 // Rotas
 app.use("/api", authRoutes);
 app.use("/api/workouts", workouts);
