@@ -203,58 +203,50 @@ export default function WorkoutCard({
                 : 'max-h-0 opacity-0 transform scale-95'
             }`}
           >
-            <div className="flex gap-1 sm:gap-2 mb-4 flex-wrap">
+            <div className="flex gap-1 mb-4 flex-wrap">
               <button
                 onClick={() => {
                   fecharOutrosFormularios('exForm');
                   onToggleExForm(treino._id);
                 }}
-                className={`px-2 sm:px-3 py-1 text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-2 py-1 text-xs font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-blue-600 hover:text-blue-800' : 'text-blue-300 hover:text-white'
                 }`}
-                title="Adicionar exercício"
               >
-                <span className="hidden sm:inline">+ Exercício</span>
-                <span className="sm:hidden">+ Ex</span>
+                + Exercício
               </button>
               <button
                 onClick={() => {
                   fecharOutrosFormularios('concluir');
                   onToggleConcluir(treino._id);
                 }}
-                className={`px-2 sm:px-3 py-1 text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-2 py-1 text-xs font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-green-600 hover:text-green-800' : 'text-green-300 hover:text-white'
                 }`}
-                title="Registrar treino"
               >
-                <span className="hidden sm:inline">✅ Registrar</span>
-                <span className="sm:hidden">✅ Reg</span>
+                ✅ Registrar
               </button>
               <button
                 onClick={() => {
                   fecharOutrosFormularios('historico');
                   onToggleHistorico(treino._id);
                 }}
-                className={`px-2 sm:px-3 py-1 text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-2 py-1 text-xs font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-purple-600 hover:text-purple-800' : 'text-purple-300 hover:text-white'
                 }`}
-                title="Ver histórico"
               >
-                <span className="hidden sm:inline">🕐 Histórico</span>
-                <span className="sm:hidden">🕐 Hist</span>
+                🕐 Histórico
               </button>
               <button
                 onClick={() => {
                   fecharOutrosFormularios('none');
                   onDeletarTreino(treino._id);
                 }}
-                className={`px-2 sm:px-3 py-1 text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-2 py-1 text-xs font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-red-600 hover:text-red-800' : 'text-red-300 hover:text-white'
                 }`}
-                title="Excluir treino"
               >
-                <span className="hidden sm:inline">✕ Excluir</span>
-                <span className="sm:hidden">✕ Del</span>
+                ✕ Excluir
               </button>
             </div>
           </div>
