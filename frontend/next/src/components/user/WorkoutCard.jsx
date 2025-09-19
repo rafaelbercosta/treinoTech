@@ -203,50 +203,50 @@ export default function WorkoutCard({
                 : 'max-h-0 opacity-0 transform scale-95'
             }`}
           >
-            <div className="flex gap-1 mb-4">
+            <div className="flex gap-1 sm:gap-2 mb-4">
               <button
                 onClick={() => {
                   fecharOutrosFormularios('exForm');
                   onToggleExForm(treino._id);
                 }}
-                className={`px-1.5 py-1 text-[11px] font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-1.5 sm:px-3 py-1 text-[11px] sm:text-xs font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-blue-600 hover:text-blue-800' : 'text-blue-300 hover:text-white'
                 }`}
               >
-                + Exercício
+                <span className="text-sm sm:text-base">+</span> Exercício
               </button>
               <button
                 onClick={() => {
                   fecharOutrosFormularios('concluir');
                   onToggleConcluir(treino._id);
                 }}
-                className={`px-1.5 py-1 text-[11px] font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-1.5 sm:px-3 py-1 text-[11px] sm:text-xs font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-green-600 hover:text-green-800' : 'text-green-300 hover:text-white'
                 }`}
               >
-                ✅ Registrar
+                <span className="text-sm sm:text-base">✅</span> Registrar
               </button>
               <button
                 onClick={() => {
                   fecharOutrosFormularios('historico');
                   onToggleHistorico(treino._id);
                 }}
-                className={`px-1.5 py-1 text-[11px] font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-1.5 sm:px-3 py-1 text-[11px] sm:text-xs font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-purple-600 hover:text-purple-800' : 'text-purple-300 hover:text-white'
                 }`}
               >
-                🕐 Histórico
+                <span className="text-sm sm:text-base">🕐</span> Histórico
               </button>
               <button
                 onClick={() => {
                   fecharOutrosFormularios('none');
                   onDeletarTreino(treino._id);
                 }}
-                className={`px-1.5 py-1 text-[11px] font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-1.5 sm:px-3 py-1 text-[11px] sm:text-xs font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-red-600 hover:text-red-800' : 'text-red-300 hover:text-white'
                 }`}
               >
-                ✕ Excluir
+                <span className="text-sm sm:text-base">✕</span> Excluir
               </button>
             </div>
           </div>
