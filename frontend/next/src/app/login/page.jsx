@@ -40,7 +40,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="flex-1 flex flex-col items-center justify-start pt-28 relative">
+      <div className="flex-1 flex flex-col items-center justify-between pt-16 pb-4 relative">
         <DynamicBackground modoClaro={modoClaro} />
         <div className="w-full max-w-md p-8 rounded-lg">
           <h2 className={`text-2xl font-bold text-center mb-6 ${modoClaro ? 'text-gray-900' : 'text-white'}`}>Login</h2>
@@ -103,14 +103,14 @@ export default function LoginPage() {
             </button>
           </div>
         </div>
+        
+        {/* Footer HTML no final da página */}
+        <footer className={`py-2 text-center border-t ${modoClaro ? 'border-gray-200 bg-gray-50' : 'border-white/10 bg-black/20'}`}>
+          <p className={`text-xs ${modoClaro ? 'text-gray-500' : 'text-gray-400'}`}>
+            Desenvolvido por <span className={`font-medium ${modoClaro ? 'text-gray-700' : 'text-gray-300'}`}>Rafael Costa</span>
+          </p>
+        </footer>
       </div>
-      
-      {/* Footer HTML no final da página */}
-      <footer className={`py-4 text-center border-t ${modoClaro ? 'border-gray-200 bg-gray-50' : 'border-white/10 bg-black/20'}`}>
-        <p className={`text-xs ${modoClaro ? 'text-gray-500' : 'text-gray-400'}`}>
-          Desenvolvido por <span className={`font-medium ${modoClaro ? 'text-gray-700' : 'text-gray-300'}`}>Rafael Costa</span>
-        </p>
-      </footer>
       
       <ThemeToggle />
     </div>

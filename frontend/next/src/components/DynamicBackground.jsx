@@ -103,9 +103,9 @@ export default function DynamicBackground({ modoClaro = false }) {
 
           if (distance < 100) {
             ctx.save();
-            ctx.globalAlpha = (100 - distance) / 100 * (modoClaro ? 0.25 : 0.15);
-            ctx.strokeStyle = modoClaro ? '#374151' : '#ffffff';
-            ctx.lineWidth = modoClaro ? 0.8 : 0.5;
+            ctx.globalAlpha = (100 - distance) / 100 * (modoClaro ? 0.12 : 0.15);
+            ctx.strokeStyle = modoClaro ? '#9ca3af' : '#ffffff';
+            ctx.lineWidth = modoClaro ? 0.5 : 0.5;
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
