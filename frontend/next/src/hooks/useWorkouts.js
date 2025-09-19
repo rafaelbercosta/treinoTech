@@ -138,7 +138,7 @@ export function useWorkouts() {
 
     try {
       setLoading(true);
-      const res = await fetch("${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts`, {
         headers: getAuthHeaders(),
       });
 
@@ -166,7 +166,7 @@ export function useWorkouts() {
     if (!verificarTokenAntesOperacao()) return;
 
     try {
-      const res = await fetch("${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({ nome }),

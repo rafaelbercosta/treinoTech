@@ -47,7 +47,7 @@ export function useUser() {
       }
 
       // Se não tiver no localStorage, busca da API
-      const res = await fetch("${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/user", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/user`, {
         headers: getAuthHeaders(),
       });
 

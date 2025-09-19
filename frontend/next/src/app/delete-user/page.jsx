@@ -24,7 +24,7 @@ export default function DeleteUserPage() {
     }
 
     try {
-      const res = await fetch("${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/delete-user", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/delete-user`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, password }),
@@ -46,7 +46,7 @@ export default function DeleteUserPage() {
 
   const handleConfirmDelete = async () => {
     try {
-      const res = await fetch("${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/delete-user", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/delete-user`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, password, confirmed: true }),
