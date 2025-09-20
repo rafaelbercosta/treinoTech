@@ -1,9 +1,15 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import dotenv from "dotenv";
 
 import authRoutes from "./routes/authRoutes.js";
 import workouts from "./routes/workoutRoutes.js";
+
+// Carregar variáveis de ambiente apenas em desenvolvimento local
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config();
+}
 
 const app = express();
 

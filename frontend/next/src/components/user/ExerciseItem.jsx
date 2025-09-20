@@ -18,6 +18,7 @@ export default function ExerciseItem({
   onDeletarExercicio,
   onToggleObservacao,
   onMoverExercicio,
+  operationLoading = {},
   onHandleTouchStart,
   onHandleTouchMove,
   onHandleTouchEnd,
@@ -266,11 +267,20 @@ export default function ExerciseItem({
                 e.stopPropagation();
                 onDeletarExercicio(treinoId, exercicio._id);
               }}
+              disabled={operationLoading[`delete-exercise-${treinoId}-${exercicio._id}`]}
               className={`px-3 py-1 text-xs font-medium transition-all duration-300 ${
-                modoClaro ? 'text-red-600 hover:text-red-800' : 'text-red-300 hover:text-white'
+                operationLoading[`delete-exercise-${treinoId}-${exercicio._id}`]
+                  ? 'opacity-50 cursor-not-allowed'
+                  : modoClaro ? 'text-red-600 hover:text-red-800' : 'text-red-300 hover:text-white'
               }`}
             >
-              ✕ Excluir
+              {operationLoading[`delete-exercise-${treinoId}-${exercicio._id}`] ? (
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                '✕ Excluir'
+              )}
             </button>
           </div>
         </div>

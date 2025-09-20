@@ -18,6 +18,7 @@ export default function UserPage() {
     treinos,
     setTreinos,
     loading,
+    operationLoading,
     adicionarTreino,
     deletarTreino,
     editarTreino,
@@ -359,6 +360,7 @@ export default function UserPage() {
             setConcluirVisivel={setConcluirVisivel}
             setHistoricoVisivel={setHistoricoVisivel}
             setExFormVisivel={setExFormVisivel}
+            operationLoading={operationLoading}
           />
       ))}
     </div>

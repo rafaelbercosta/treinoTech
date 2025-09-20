@@ -6,7 +6,8 @@ export default function ExerciseForm({
   setNovoExercicio,
   onAdicionarExercicio,
   onCancelar,
-  modoClaro
+  modoClaro,
+  isLoading = false
 }) {
   const handleInputChange = (campo, valor) => {
     setNovoExercicio(prev => ({
@@ -142,11 +143,20 @@ export default function ExerciseForm({
       <div className="flex gap-2">
         <button
           onClick={() => onAdicionarExercicio(treinoId)}
+          disabled={isLoading}
           className={`px-3 py-1 text-xs font-medium transition-all duration-300 ${
-            modoClaro ? 'text-green-600 hover:text-green-800' : 'text-green-300 hover:text-white'
+            isLoading 
+              ? 'opacity-50 cursor-not-allowed' 
+              : modoClaro ? 'text-green-600 hover:text-green-800' : 'text-green-300 hover:text-white'
           }`}
         >
-          ✅ Adicionar
+          {isLoading ? (
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            '✅ Adicionar'
+          )}
         </button>
         <button
           onClick={onCancelar}

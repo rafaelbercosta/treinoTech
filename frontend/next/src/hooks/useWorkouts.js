@@ -7,6 +7,7 @@ export function useWorkouts() {
   const router = useRouter();
   const [treinos, setTreinos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [operationLoading, setOperationLoading] = useState({});
 
   // ===== Utilitário Headers =====
   const getAuthHeaders = () => {
@@ -38,6 +39,45 @@ export function useWorkouts() {
       return false;
     }
     return true;
+  };
+
+  // ===== Função Genérica de Retry =====
+  const executeWithRetry = async (operationId, fetchFunction, maxRetries = 3) => {
+    setOperationLoading(prev => ({ ...prev, [operationId]: true }));
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
+
+        const result = await fetchFunction(controller.signal);
+        
+        clearTimeout(timeoutId);
+        setOperationLoading(prev => ({ ...prev, [operationId]: false }));
+        return result;
+        
+      } catch (err) {
+        if (err.name === 'AbortError' || err.message.includes('fetch')) {
+          // Timeout ou erro de conexão - servidor provavelmente dormindo
+          if (attempt < maxRetries - 1) {
+            // Mostra alerta informativo
+            alert(`🔄 Servidor iniciando... Tentativa ${attempt + 1} de ${maxRetries}\n\nO servidor pode estar em modo sleep. Aguarde alguns segundos.`);
+            // Aguarda antes da próxima tentativa
+            await new Promise(resolve => setTimeout(resolve, 3000 + (attempt * 2000)));
+            continue;
+          } else {
+            // Última tentativa falhou
+            setOperationLoading(prev => ({ ...prev, [operationId]: false }));
+            alert("❌ Servidor demorou para responder.\n\nTente novamente em alguns minutos. O servidor pode estar em modo sleep.");
+            throw new Error("Servidor demorou para responder. Tente novamente em alguns minutos.");
+          }
+        } else {
+          // Outros erros (não relacionados ao servidor dormindo)
+          setOperationLoading(prev => ({ ...prev, [operationId]: false }));
+          throw err;
+        }
+      }
+    }
   };
 
   // ===== Gerenciamento de Ordem dos Exercícios =====
@@ -165,11 +205,16 @@ export function useWorkouts() {
   const adicionarTreino = async (nome) => {
     if (!verificarTokenAntesOperacao()) return;
 
+    const operationId = `add-workout`;
+    
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts`, {
-        method: "POST",
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ nome }),
+      const res = await executeWithRetry(operationId, async (signal) => {
+        return await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts`, {
+          method: "POST",
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ nome }),
+          signal
+        });
       });
 
       if (verificarTokenExpirado(res)) {
@@ -190,10 +235,15 @@ export function useWorkouts() {
   const deletarTreino = async (treinoId) => {
     if (!verificarTokenAntesOperacao()) return;
 
+    const operationId = `delete-workout-${treinoId}`;
+    
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts/${treinoId}`, {
-        method: "DELETE",
-        headers: getAuthHeaders(),
+      const res = await executeWithRetry(operationId, async (signal) => {
+        return await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts/${treinoId}`, {
+          method: "DELETE",
+          headers: getAuthHeaders(),
+          signal
+        });
       });
 
       if (verificarTokenExpirado(res)) {
@@ -212,11 +262,16 @@ export function useWorkouts() {
   const editarTreino = async (treinoId, novoNome) => {
     if (!verificarTokenAntesOperacao()) return;
 
+    const operationId = `edit-workout-${treinoId}`;
+    
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts/${treinoId}`, {
-        method: "PUT",
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ nome: novoNome }),
+      const res = await executeWithRetry(operationId, async (signal) => {
+        return await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts/${treinoId}`, {
+          method: "PUT",
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ nome: novoNome }),
+          signal
+        });
       });
 
       if (verificarTokenExpirado(res)) {
@@ -242,23 +297,28 @@ export function useWorkouts() {
   const adicionarExercicio = async (treinoId, dadosExercicio) => {
     if (!verificarTokenAntesOperacao()) return;
 
+    const operationId = `add-exercise-${treinoId}`;
+    
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts/${treinoId}/exercises`,
-        {
-          method: "POST",
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
-            nome: dadosExercicio.nome,
-            series: parseInt(dadosExercicio.series) || 0,
-            repeticoes: parseInt(dadosExercicio.repeticoes) || 0,
-            carga: parseFloat(dadosExercicio.carga) || 0,
-            tempoDescanso: dadosExercicio.tempoDescanso || "",
-            observacoes: dadosExercicio.observacoes || "",
-            metodoIntensificacao: dadosExercicio.metodoIntensificacao !== undefined ? dadosExercicio.metodoIntensificacao : "",
-          }),
-        }
-      );
+      const res = await executeWithRetry(operationId, async (signal) => {
+        return await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts/${treinoId}/exercises`,
+          {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+              nome: dadosExercicio.nome,
+              series: parseInt(dadosExercicio.series) || 0,
+              repeticoes: parseInt(dadosExercicio.repeticoes) || 0,
+              carga: parseFloat(dadosExercicio.carga) || 0,
+              tempoDescanso: dadosExercicio.tempoDescanso || "",
+              observacoes: dadosExercicio.observacoes || "",
+              metodoIntensificacao: dadosExercicio.metodoIntensificacao !== undefined ? dadosExercicio.metodoIntensificacao : "",
+            }),
+            signal
+          }
+        );
+      });
 
       if (verificarTokenExpirado(res)) {
         return;
@@ -278,14 +338,19 @@ export function useWorkouts() {
   const deletarExercicio = async (treinoId, exId) => {
     if (!verificarTokenAntesOperacao()) return;
 
+    const operationId = `delete-exercise-${treinoId}-${exId}`;
+    
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts/${treinoId}/exercises/${exId}`,
-        {
-          method: "DELETE",
-          headers: getAuthHeaders(),
-        }
-      );
+      const res = await executeWithRetry(operationId, async (signal) => {
+        return await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts/${treinoId}/exercises/${exId}`,
+          {
+            method: "DELETE",
+            headers: getAuthHeaders(),
+            signal
+          }
+        );
+      });
 
       if (verificarTokenExpirado(res)) {
         return;
@@ -304,23 +369,28 @@ export function useWorkouts() {
   const editarExercicio = async (treinoId, exId, dadosExercicio) => {
     if (!verificarTokenAntesOperacao()) return;
 
+    const operationId = `edit-exercise-${treinoId}-${exId}`;
+    
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts/${treinoId}/exercises/${exId}`,
-        {
-          method: "PUT",
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
-            nome: dadosExercicio.nome,
-            series: dadosExercicio.series,
-            repeticoes: dadosExercicio.repeticoes,
-            carga: dadosExercicio.carga,
-            tempoDescanso: dadosExercicio.tempoDescanso,
-            observacoes: dadosExercicio.observacoes,
-            metodoIntensificacao: dadosExercicio.metodoIntensificacao !== undefined ? dadosExercicio.metodoIntensificacao : "",
-          }),
-        }
-      );
+      const res = await executeWithRetry(operationId, async (signal) => {
+        return await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts/${treinoId}/exercises/${exId}`,
+          {
+            method: "PUT",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+              nome: dadosExercicio.nome,
+              series: dadosExercicio.series,
+              repeticoes: dadosExercicio.repeticoes,
+              carga: dadosExercicio.carga,
+              tempoDescanso: dadosExercicio.tempoDescanso,
+              observacoes: dadosExercicio.observacoes,
+              metodoIntensificacao: dadosExercicio.metodoIntensificacao !== undefined ? dadosExercicio.metodoIntensificacao : "",
+            }),
+            signal
+          }
+        );
+      });
 
       if (verificarTokenExpirado(res)) {
         return;
@@ -439,6 +509,7 @@ export function useWorkouts() {
     treinos,
     setTreinos,
     loading,
+    operationLoading,
     adicionarTreino,
     deletarTreino,
     editarTreino,

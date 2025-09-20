@@ -64,7 +64,8 @@ export default function WorkoutCard({
   menuTreinoVisivel,
   setConcluirVisivel,
   setHistoricoVisivel,
-  setExFormVisivel
+  setExFormVisivel,
+  operationLoading = {}
 }) {
   // Função para fechar todos os formulários exceto o especificado
   const fecharOutrosFormularios = (manterAberto) => {
@@ -242,11 +243,22 @@ export default function WorkoutCard({
                   fecharOutrosFormularios('none');
                   onDeletarTreino(treino._id);
                 }}
+                disabled={operationLoading[`delete-workout-${treino._id}`]}
                 className={`px-1.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium transition-all duration-300 whitespace-nowrap ${
-                  modoClaro ? 'text-red-600 hover:text-red-800' : 'text-red-300 hover:text-white'
+                  operationLoading[`delete-workout-${treino._id}`]
+                    ? 'opacity-50 cursor-not-allowed'
+                    : modoClaro ? 'text-red-600 hover:text-red-800' : 'text-red-300 hover:text-white'
                 }`}
               >
-                <span className="text-sm sm:text-base">✕</span> Excluir
+                {operationLoading[`delete-workout-${treino._id}`] ? (
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : (
+                  <>
+                    <span className="text-sm sm:text-base">✕</span> Excluir
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -342,6 +354,7 @@ export default function WorkoutCard({
                 onAdicionarExercicio={onAdicionarExercicio}
                 onCancelar={() => onToggleExForm(treino._id)}
                 modoClaro={modoClaro}
+                isLoading={operationLoading[`add-exercise-${treino._id}`]}
               />
             )}
           </div>
@@ -381,6 +394,7 @@ export default function WorkoutCard({
                   setExFormVisivel={setExFormVisivel}
                   exercicioExpandido={exercicioExpandido}
                   onToggleExpandirExercicio={onToggleExpandirExercicio}
+                  operationLoading={operationLoading}
                 />
               ))}
             </div>

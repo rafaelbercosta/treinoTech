@@ -12,8 +12,70 @@ export default function DeleteUserPage() {
   const [message, setMessage] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [serverStatus, setServerStatus] = useState(''); // 'sleeping', 'waking', 'online'
   const router = useRouter();
   const modoClaro = useTheme();
+
+  const attemptDelete = async (isRetry = false) => {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos timeout
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/delete-user`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, password }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+      const data = await res.json();
+
+      if (res.ok) {
+        setServerStatus('online');
+        setShowConfirmation(true);
+        setMessage("");
+        setLoading(false);
+      } else {
+        setMessage(data.message || "Erro ao verificar credenciais.");
+        setLoading(false);
+      }
+    } catch (err) {
+      if (err.name === 'AbortError') {
+        // Timeout - servidor provavelmente dormindo
+        setServerStatus('sleeping');
+        setMessage("Servidor iniciando, aguarde...");
+        
+        if (retryCount < 3) {
+          setRetryCount(prev => prev + 1);
+          setTimeout(() => {
+            setServerStatus('waking');
+            attemptDelete(true);
+          }, 5000); // Tenta novamente em 5 segundos
+        } else {
+          setMessage("Servidor demorou para responder. Tente novamente em alguns minutos.");
+          setLoading(false);
+        }
+      } else {
+        // Outros erros de conexão
+        setServerStatus('sleeping');
+        setMessage("Erro de conexão. Servidor pode estar iniciando...");
+        
+        if (retryCount < 2) {
+          setRetryCount(prev => prev + 1);
+          setTimeout(() => {
+            setServerStatus('waking');
+            attemptDelete(true);
+          }, 3000);
+        } else {
+          setMessage("Não foi possível conectar ao servidor. Tente novamente.");
+          setLoading(false);
+        }
+      }
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,25 +85,11 @@ export default function DeleteUserPage() {
       return;
     }
 
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/delete-user`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setShowConfirmation(true);
-        setMessage("");
-      } else {
-        setMessage(data.message || "Erro ao verificar credenciais.");
-      }
-    } catch (err) {
-      console.error(err);
-      setMessage("Erro na conexão com o servidor");
-    }
+    setLoading(true);
+    setRetryCount(0);
+    setServerStatus('waking');
+    
+    await attemptDelete();
   };
 
   const handleConfirmDelete = async () => {
@@ -165,11 +213,53 @@ export default function DeleteUserPage() {
           />
           <button
             type="submit"
-            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0"
+            disabled={loading}
+            className={`w-full py-3 px-4 rounded-xl text-white font-semibold transition-all duration-300 shadow-lg ${
+              loading 
+                ? 'opacity-70 cursor-not-allowed bg-gradient-to-r from-red-500 to-red-600' 
+                : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 hover:shadow-xl transform hover:-translate-y-0.5 active:translate-y-0'
+            }`}
           >
-            Verificar e Deletar
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                {serverStatus === 'sleeping' && 'Servidor iniciando...'}
+                {serverStatus === 'waking' && 'Deletando...'}
+                {!serverStatus && 'Verificando...'}
+              </div>
+            ) : (
+              'Verificar e Deletar'
+            )}
           </button>
-          {message && <p className={`text-center ${modoClaro ? 'text-red-600' : 'text-red-300'}`}>{message}</p>}
+          
+          {/* Mensagens de status */}
+          {message && (
+            <div className={`text-center p-3 rounded-lg ${
+              modoClaro 
+                ? 'bg-yellow-50 border border-yellow-200 text-yellow-800' 
+                : 'bg-yellow-900/20 border border-yellow-500/30 text-yellow-300'
+            }`}>
+              <p className="text-sm">{message}</p>
+              {retryCount > 0 && (
+                <p className="text-xs mt-1 opacity-75">
+                  Tentativa {retryCount}/3
+                </p>
+              )}
+            </div>
+          )}
+          
+          {serverStatus === 'sleeping' && (
+            <div className={`text-center p-3 rounded-lg ${
+              modoClaro 
+                ? 'bg-blue-50 border border-blue-200 text-blue-800' 
+                : 'bg-blue-900/20 border border-blue-500/30 text-blue-300'
+            }`}>
+              <p className="text-sm">🔄 Servidor está iniciando...</p>
+              <p className="text-xs mt-1 opacity-75">
+                Isso pode levar até 60 segundos
+              </p>
+            </div>
+          )}
         </form>
 
         <div className="mt-6 text-center">
