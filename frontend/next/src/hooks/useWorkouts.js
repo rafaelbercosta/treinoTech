@@ -411,16 +411,21 @@ export function useWorkouts() {
   const concluirTreino = async (treinoId, observacoes) => {
     if (!verificarTokenAntesOperacao()) return;
 
+    const operationId = `conclude-workout-${treinoId}`;
+    
     try {
       const data = new Date().toISOString();
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts/${treinoId}/history`,
-        {
-          method: "POST",
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ data, observacoes }),
-        }
-      );
+      const res = await executeWithRetry(operationId, async (signal) => {
+        return await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts/${treinoId}/history`,
+          {
+            method: "POST",
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ data, observacoes }),
+            signal
+          }
+        );
+      });
 
       if (verificarTokenExpirado(res)) {
         return;

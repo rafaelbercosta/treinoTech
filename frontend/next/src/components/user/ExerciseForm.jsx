@@ -29,6 +29,7 @@ export default function ExerciseForm({
           type="text"
           placeholder="Nome do exercício"
           value={novoExercicio.nome || ""}
+          maxLength={30}
           onChange={(e) => handleInputChange('nome', e.target.value)}
           className={`border rounded p-2 text-sm backdrop-blur-sm focus:outline-none focus:ring-2 ${
             modoClaro
@@ -41,6 +42,7 @@ export default function ExerciseForm({
           type="text"
           placeholder="Séries"
           value={novoExercicio.series || ""}
+          maxLength={2}
           onChange={(e) => {
             const valor = e.target.value.replace(/\D/g, "");
             handleInputChange('series', valor);
@@ -56,6 +58,7 @@ export default function ExerciseForm({
           type="text"
           placeholder="Repetições"
           value={novoExercicio.repeticoes || ""}
+          maxLength={3}
           onChange={(e) => {
             const valor = e.target.value.replace(/\D/g, "");
             handleInputChange('repeticoes', valor);
@@ -71,6 +74,7 @@ export default function ExerciseForm({
           type="text"
           placeholder="Carga (kg)"
           value={novoExercicio.carga || ""}
+          maxLength={5}
           onChange={(e) => {
             const valor = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
             handleInputChange('carga', valor);
@@ -86,6 +90,7 @@ export default function ExerciseForm({
           type="text"
           placeholder="Tempo de descanso"
           value={novoExercicio.tempoDescanso || ""}
+          maxLength={3}
           onChange={(e) => handleInputChange('tempoDescanso', e.target.value)}
           className={`border rounded p-2 text-sm backdrop-blur-sm focus:outline-none focus:ring-2 ${
             modoClaro
@@ -98,6 +103,7 @@ export default function ExerciseForm({
       <textarea
         placeholder="Observações (opcional)"
         value={novoExercicio.observacoes || ""}
+        maxLength={100}
         onChange={(e) => handleInputChange('observacoes', e.target.value)}
         className={`w-full p-2 text-sm border rounded backdrop-blur-sm focus:outline-none focus:ring-2 mb-3 ${
           modoClaro

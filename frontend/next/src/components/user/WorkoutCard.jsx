@@ -310,11 +310,20 @@ export default function WorkoutCard({
               <div className="flex gap-2 mt-2">
                 <button
                   onClick={() => onConcluirTreino(treino._id)}
+                  disabled={operationLoading[`conclude-workout-${treino._id}`]}
                   className={`px-3 py-1 text-xs font-medium transition-all duration-300 ${
-                    modoClaro ? 'text-green-600 hover:text-green-800' : 'text-green-300 hover:text-white'
+                    operationLoading[`conclude-workout-${treino._id}`]
+                      ? 'opacity-50 cursor-not-allowed'
+                      : modoClaro ? 'text-green-600 hover:text-green-800' : 'text-green-300 hover:text-white'
                   }`}
                 >
-                  ✅ Registrar
+                  {operationLoading[`conclude-workout-${treino._id}`] ? (
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  ) : (
+                    '✅ Registrar'
+                  )}
                 </button>
                 <button
                   onClick={() => onToggleConcluir(treino._id)}

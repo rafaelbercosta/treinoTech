@@ -166,7 +166,11 @@ export default function ExerciseItem({
               type="text"
               placeholder="Séries"
               value={exercicio.series}
-              onChange={(e) => onUpdateCampoEx(treinoId, exercicio._id, 'series', e.target.value)}
+              maxLength={2}
+              onChange={(e) => {
+                const valor = e.target.value.replace(/\D/g, "");
+                onUpdateCampoEx(treinoId, exercicio._id, 'series', valor);
+              }}
               className={`p-2 text-sm border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${
                 modoClaro
                   ? 'border-gray-300 bg-gray-50 text-gray-900 focus:ring-blue-500'
@@ -177,7 +181,11 @@ export default function ExerciseItem({
               type="text"
               placeholder="Repetições"
               value={exercicio.repeticoes}
-              onChange={(e) => onUpdateCampoEx(treinoId, exercicio._id, 'repeticoes', e.target.value)}
+              maxLength={3}
+              onChange={(e) => {
+                const valor = e.target.value.replace(/\D/g, "");
+                onUpdateCampoEx(treinoId, exercicio._id, 'repeticoes', valor);
+              }}
               className={`p-2 text-sm border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${
                 modoClaro
                   ? 'border-gray-300 bg-gray-50 text-gray-900 focus:ring-blue-500'
@@ -188,7 +196,11 @@ export default function ExerciseItem({
               type="text"
               placeholder="Carga"
               value={exercicio.carga}
-              onChange={(e) => onUpdateCampoEx(treinoId, exercicio._id, 'carga', e.target.value)}
+              maxLength={5}
+              onChange={(e) => {
+                const valor = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
+                onUpdateCampoEx(treinoId, exercicio._id, 'carga', valor);
+              }}
               className={`p-2 text-sm border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${
                 modoClaro
                   ? 'border-gray-300 bg-gray-50 text-gray-900 focus:ring-blue-500'
@@ -199,6 +211,7 @@ export default function ExerciseItem({
               type="text"
               placeholder="Descanso"
               value={exercicio.tempoDescanso}
+              maxLength={3}
               onChange={(e) => onUpdateCampoEx(treinoId, exercicio._id, 'tempoDescanso', e.target.value)}
               className={`p-2 text-sm border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${
                 modoClaro
@@ -211,6 +224,7 @@ export default function ExerciseItem({
           <textarea
             placeholder="Observações"
             value={exercicio.observacoes}
+            maxLength={100}
             onChange={(e) => onUpdateCampoEx(treinoId, exercicio._id, 'observacoes', e.target.value)}
             className={`w-full p-2 text-sm border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${
               modoClaro
