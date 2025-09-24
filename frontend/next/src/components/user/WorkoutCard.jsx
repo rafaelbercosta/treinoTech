@@ -192,11 +192,11 @@ export default function WorkoutCard({
       <div 
         className={`overflow-hidden transition-all duration-300 ease-in-out ${
           treinoExpandido[treino._id] 
-            ? 'max-h-screen opacity-100 transform scale-100' 
+            ? 'max-h-none opacity-100 transform scale-100' 
             : 'max-h-0 opacity-0 transform scale-95'
         }`}
       >
-        <div className="p-4 pt-0 pb-8">
+        <div className="p-4 pt-0">
           {/* Botões de ação - só aparecem quando o menu está visível */}
           <div 
             className={`overflow-hidden transition-all duration-300 ease-in-out ${

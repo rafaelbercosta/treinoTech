@@ -46,30 +46,7 @@ export function useWorkoutUI() {
         return { ...prev, [treinoId]: false };
       } else {
         // Se está fechado, fecha todos os outros e abre este
-        const newState = { [treinoId]: true };
-        
-        // Scroll suave para o treino expandido após um pequeno delay
-        setTimeout(() => {
-          const element = document.getElementById(`workout-${treinoId}`);
-          if (element) {
-            // Calcular posição para garantir que o treino fique completamente visível
-            const elementRect = element.getBoundingClientRect();
-            const viewportHeight = window.innerHeight;
-            const elementHeight = elementRect.height;
-            
-            // Se o treino for muito grande, posicionar no topo
-            // Se for menor, centralizar
-            const blockPosition = elementHeight > viewportHeight * 0.8 ? 'start' : 'center';
-            
-            element.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: blockPosition,
-              inline: 'nearest'
-            });
-          }
-        }, 200);
-        
-        return newState;
+        return { [treinoId]: true };
       }
     });
   };
