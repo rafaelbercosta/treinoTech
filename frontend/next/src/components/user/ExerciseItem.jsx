@@ -147,7 +147,7 @@ export default function ExerciseItem({
       </div>
 
       {editandoEx[exercicio._id] ? (
-        <div className="space-y-2">
+        <div className="space-y-3 pb-4">
           <input
             type="text"
             value={exercicio.nome}
@@ -267,7 +267,7 @@ export default function ExerciseItem({
             )}
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex gap-2 pt-2">
             <button
               onClick={() => onSalvarEdicaoEx(treinoId, exercicio._id)}
               className={`px-3 py-1 text-xs font-medium transition-all duration-300 ${
