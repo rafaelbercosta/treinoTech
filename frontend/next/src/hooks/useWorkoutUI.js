@@ -54,11 +54,11 @@ export function useWorkoutUI() {
           if (element) {
             element.scrollIntoView({ 
               behavior: 'smooth', 
-              block: 'start',
+              block: 'center',
               inline: 'nearest'
             });
           }
-        }, 100);
+        }, 150);
         
         return newState;
       }
