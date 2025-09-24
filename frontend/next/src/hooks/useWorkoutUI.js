@@ -81,6 +81,18 @@ export function useWorkoutUI() {
         // Se está entrando em modo de edição e temos o treinoId, expandir o treino
         if (!isCurrentlyEditing && treinoId) {
           setTreinoExpandido((prevExpandido) => ({ ...prevExpandido, [treinoId]: true }));
+          
+          // Scroll suave para o exercício em edição após um pequeno delay
+          setTimeout(() => {
+            const element = document.getElementById(`exercise-${exId}`);
+            if (element) {
+              element.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center',
+                inline: 'nearest'
+              });
+            }
+          }, 100);
         }
         
         return newState;

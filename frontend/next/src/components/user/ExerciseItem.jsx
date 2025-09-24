@@ -43,6 +43,7 @@ export default function ExerciseItem({
 
   return (
     <div
+      id={`exercise-${exercicio._id}`}
       className={`p-2 rounded border backdrop-blur-sm relative transition-all duration-300 ease-in-out ${
         swipeActive[exercicio._id] ? 'scale-105 shadow-lg' : ''
       } ${
@@ -53,6 +54,8 @@ export default function ExerciseItem({
         exercicio.metodoIntensificacao && !editandoEx[exercicio._id] ? 'shadow-md ring-1 ring-orange-400/50 bg-gradient-to-r from-orange-50/20 to-yellow-50/20' : ''
       } ${
         exercicioExpandido[exercicio._id] ? 'shadow-lg ring-1 ring-blue-300/30' : ''
+      } ${
+        editandoEx[exercicio._id] ? 'ring-2 ring-blue-400/60 shadow-xl' : ''
       }`}
       onTouchStart={(e) => onHandleTouchStart(e, exercicio._id, treinoId, exercicioIndex)}
       onTouchMove={(e) => onHandleTouchMove(e, exercicio._id)}
@@ -147,7 +150,7 @@ export default function ExerciseItem({
       </div>
 
       {editandoEx[exercicio._id] ? (
-        <div className="space-y-3 pb-4">
+        <div className="space-y-3 pb-8 mb-4">
           <input
             type="text"
             value={exercicio.nome}
