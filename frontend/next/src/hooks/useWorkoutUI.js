@@ -76,20 +76,35 @@ export function useWorkoutUI() {
     } else {
       setEditandoEx((prev) => {
         const isCurrentlyEditing = prev[exId];
-        const newState = { ...prev, [exId]: !isCurrentlyEditing };
-        
-        // Se está entrando em modo de edição e temos o treinoId, expandir o treino
-        if (!isCurrentlyEditing && treinoId) {
-          setTreinoExpandido((prevExpandido) => ({ ...prevExpandido, [treinoId]: true }));
+        if (isCurrentlyEditing) {
+          // Se está editando, apenas fecha este exercício
+          return { ...prev, [exId]: false };
+        } else {
+          // Se não está editando, fecha todos os outros e abre este
+          const newState = { [exId]: true };
+          
+          // Se está entrando em modo de edição e temos o treinoId, expandir o treino
+          if (treinoId) {
+            setTreinoExpandido((prevExpandido) => ({ ...prevExpandido, [treinoId]: true }));
+          }
+          
+          return newState;
         }
-        
-        return newState;
       });
     }
   };
 
   const toggleExpandirExercicio = (exId) => {
-    setExercicioExpandido((prev) => ({ ...prev, [exId]: !prev[exId] }));
+    setExercicioExpandido((prev) => {
+      const isCurrentlyExpanded = prev[exId];
+      if (isCurrentlyExpanded) {
+        // Se está expandido, apenas fecha este exercício
+        return { ...prev, [exId]: false };
+      } else {
+        // Se está fechado, fecha todos os outros e abre este
+        return { [exId]: true };
+      }
+    });
   };
 
   const toggleHistorico = (treinoId) =>
