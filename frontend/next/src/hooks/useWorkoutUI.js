@@ -69,12 +69,22 @@ export function useWorkoutUI() {
       return { ...prev, [treinoId]: next };
     });
 
-  const toggleEditarEx = (exId) => {
+  const toggleEditarEx = (exId, treinoId = null) => {
     if (exId === 'fechar-todos') {
       // Fechar edição de todos os exercícios
       setEditandoEx({});
     } else {
-      setEditandoEx((prev) => ({ ...prev, [exId]: !prev[exId] }));
+      setEditandoEx((prev) => {
+        const isCurrentlyEditing = prev[exId];
+        const newState = { ...prev, [exId]: !isCurrentlyEditing };
+        
+        // Se está entrando em modo de edição e temos o treinoId, expandir o treino
+        if (!isCurrentlyEditing && treinoId) {
+          setTreinoExpandido((prevExpandido) => ({ ...prevExpandido, [treinoId]: true }));
+        }
+        
+        return newState;
+      });
     }
   };
 

@@ -437,7 +437,7 @@ export default function ExerciseItem({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onToggleEditarEx(exercicio._id);
+                    onToggleEditarEx(exercicio._id, treinoId);
                   }}
                   className={`px-3 py-1 text-xs font-medium rounded transition-all duration-300 border-0 outline-none bg-transparent hover:scale-105 ${
                     modoClaro
