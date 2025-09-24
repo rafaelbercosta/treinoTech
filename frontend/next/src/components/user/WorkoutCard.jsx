@@ -82,6 +82,7 @@ export default function WorkoutCard({
 
   return (
     <div
+      id={`workout-${treino._id}`}
       key={treino._id}
       className={`mb-4 rounded border backdrop-blur-sm relative z-10 hover:shadow-lg transition-all duration-300 ${
         modoSwipeAtivo ? 'cursor-move shadow-2xl ring-2 ring-blue-500/50' : 'cursor-default'
