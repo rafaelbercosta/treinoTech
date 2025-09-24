@@ -52,13 +52,22 @@ export function useWorkoutUI() {
         setTimeout(() => {
           const element = document.getElementById(`workout-${treinoId}`);
           if (element) {
+            // Calcular posição para garantir que o treino fique completamente visível
+            const elementRect = element.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+            const elementHeight = elementRect.height;
+            
+            // Se o treino for muito grande, posicionar no topo
+            // Se for menor, centralizar
+            const blockPosition = elementHeight > viewportHeight * 0.8 ? 'start' : 'center';
+            
             element.scrollIntoView({ 
               behavior: 'smooth', 
-              block: 'center',
+              block: blockPosition,
               inline: 'nearest'
             });
           }
-        }, 150);
+        }, 200);
         
         return newState;
       }
