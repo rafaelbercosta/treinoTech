@@ -211,7 +211,7 @@ export default function WorkoutCard({
                   fecharOutrosFormularios('exForm');
                   onToggleExForm(treino._id);
                 }}
-                className={`px-1.5 sm:px-3 py-1 text-xs sm:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-1.5 sm:px-3 py-1 text-[11px] sm:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-blue-600 hover:text-blue-800' : 'text-blue-300 hover:text-white'
                 }`}
               >
@@ -222,7 +222,7 @@ export default function WorkoutCard({
                   fecharOutrosFormularios('concluir');
                   onToggleConcluir(treino._id);
                 }}
-                className={`px-1.5 sm:px-3 py-1 text-xs sm:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-1.5 sm:px-3 py-1 text-[11px] sm:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-green-600 hover:text-green-800' : 'text-green-300 hover:text-white'
                 }`}
               >
@@ -233,7 +233,7 @@ export default function WorkoutCard({
                   fecharOutrosFormularios('historico');
                   onToggleHistorico(treino._id);
                 }}
-                className={`px-1.5 sm:px-3 py-1 text-xs sm:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-1.5 sm:px-3 py-1 text-[11px] sm:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-purple-600 hover:text-purple-800' : 'text-purple-300 hover:text-white'
                 }`}
               >
@@ -245,7 +245,7 @@ export default function WorkoutCard({
                   onDeletarTreino(treino._id);
                 }}
                 disabled={operationLoading[`delete-workout-${treino._id}`]}
-                className={`px-1.5 sm:px-3 py-1 text-xs sm:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-1.5 sm:px-3 py-1 text-[11px] sm:text-sm font-medium transition-all duration-300 whitespace-nowrap ${
                   operationLoading[`delete-workout-${treino._id}`]
                     ? 'opacity-50 cursor-not-allowed'
                     : modoClaro ? 'text-red-600 hover:text-red-800' : 'text-red-300 hover:text-white'
@@ -257,7 +257,7 @@ export default function WorkoutCard({
                   </div>
                 ) : (
                   <>
-                    <span className="text-xs sm:text-sm">✕</span> Excluir
+                    <span className="text-[11px] sm:text-sm">✕</span> Excluir
                   </>
                 )}
               </button>
