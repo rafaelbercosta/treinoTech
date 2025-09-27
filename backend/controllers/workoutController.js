@@ -2,10 +2,11 @@ import Workout from '../models/workout.js'
 
 export const createWorkout = async(req, res) => {
     try {
-        const { nome } =req.body;
+        const { nome, cicloId } = req.body;
 
         const workout = await Workout.create({
             userId: req.user.id,
+            cicloId: cicloId || null,
             nome,
             exercicios: [],
             historico: [],
@@ -19,7 +20,14 @@ export const createWorkout = async(req, res) => {
 
 export const getWorkouts = async (req, res) => {
     try {
-        const workouts = await Workout.find({userId: req.user.id });
+        const { cicloId } = req.query;
+        const query = { userId: req.user.id };
+        
+        if (cicloId) {
+            query.cicloId = cicloId;
+        }
+
+        const workouts = await Workout.find(query);
         res.json(workouts);
     } catch (error) {
         res.status(500).json({message: "Erro ao buscar treinos", error});

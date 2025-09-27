@@ -273,11 +273,20 @@ export default function ExerciseItem({
           <div className="flex gap-2 pt-2">
             <button
               onClick={() => onSalvarEdicaoEx(treinoId, exercicio._id)}
+              disabled={operationLoading[`edit-exercise-${treinoId}-${exercicio._id}`]}
               className={`px-3 py-1 text-xs font-medium transition-all duration-300 ${
-                modoClaro ? 'text-green-600 hover:text-green-800' : 'text-green-300 hover:text-white'
+                operationLoading[`edit-exercise-${treinoId}-${exercicio._id}`]
+                  ? 'opacity-50 cursor-not-allowed'
+                  : modoClaro ? 'text-green-600 hover:text-green-800' : 'text-green-300 hover:text-white'
               }`}
             >
-              💾 Salvar
+              {operationLoading[`edit-exercise-${treinoId}-${exercicio._id}`] ? (
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : (
+                '💾 Salvar'
+              )}
             </button>
             <button
               onClick={(e) => {

@@ -7,13 +7,18 @@ import useTheme from "../../hooks/useTheme";
 import { useWorkouts } from "../../hooks/useWorkouts";
 import { useWorkoutUI } from "../../hooks/useWorkoutUI";
 import { useUser } from "../../hooks/useUser";
+import { useCycles } from "../../hooks/useCycles";
 import UserHeader from "../../components/user/UserHeader";
 import AddWorkoutForm from "../../components/user/AddWorkoutForm";
 import WorkoutCard from "../../components/user/WorkoutCard";
+import CycleSelector from "../../components/user/CycleSelector";
 
 export default function UserPage() {
   const modoClaro = useTheme();
   const { nomeUsuario, sair } = useUser();
+  const { cicloAtivo, buscarCicloAtivo, ativarCiclo, ciclos, criarCiclo, atualizarCiclo, deletarCiclo, loading: ciclosLoading, operationLoading: ciclosOperationLoading } = useCycles();
+  const [cicloIdAtivo, setCicloIdAtivo] = useState(null);
+  
   const {
     treinos,
     setTreinos,
@@ -28,8 +33,9 @@ export default function UserPage() {
     concluirTreino,
     deletarHistorico,
     moverExercicio,
-    moverTreino
-  } = useWorkouts();
+    moverTreino,
+    buscarTreinos
+  } = useWorkouts(cicloIdAtivo);
   
   const {
     treinoExpandido,
@@ -88,6 +94,34 @@ export default function UserPage() {
   } = useWorkoutUI();
 
   const [novoTreinoNome, setNovoTreinoNome] = useState("");
+
+  // ===== Carregar ciclo ativo =====
+  useEffect(() => {
+    const carregarCicloAtivo = async () => {
+      try {
+        await buscarCicloAtivo();
+      } catch (error) {
+        console.error("Erro ao carregar ciclo ativo:", error);
+      }
+    };
+    
+    carregarCicloAtivo();
+  }, []);
+
+  // ===== Atualizar cicloIdAtivo quando cicloAtivo mudar =====
+  useEffect(() => {
+    if (cicloAtivo) {
+      setCicloIdAtivo(cicloAtivo._id);
+    }
+  }, [cicloAtivo]);
+
+  // ===== Recarregar treinos quando cicloIdAtivo mudar =====
+  useEffect(() => {
+    if (cicloIdAtivo) {
+      // Recarregar treinos com o novo ciclo
+      buscarTreinos();
+    }
+  }, [cicloIdAtivo]);
 
   // ===== Fechar menus ao clicar fora =====
   useEffect(() => {
@@ -245,6 +279,16 @@ export default function UserPage() {
     }
   };
 
+  // ===== Função para trocar ciclo =====
+  const handleCicloChange = async (novoCicloId) => {
+    try {
+      await ativarCiclo(novoCicloId);
+      setCicloIdAtivo(novoCicloId);
+    } catch (error) {
+      console.error("Erro ao trocar ciclo:", error);
+    }
+  };
+
   // ===== JSX =====
   if (loading) {
     return (
@@ -252,7 +296,7 @@ export default function UserPage() {
         <DynamicBackground modoClaro={modoClaro} />
         <div className="flex items-center justify-center h-64">
           <div className={`text-lg ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
-            Carregando treinos...
+            Carregando...
           </div>
         </div>
         <ThemeToggle />
@@ -269,6 +313,20 @@ export default function UserPage() {
         onSair={sair} 
         modoClaro={modoClaro} 
       />
+
+    {/* Seletor de Ciclo */}
+            <CycleSelector
+              cicloAtivo={cicloAtivo}
+              onCicloChange={handleCicloChange}
+              modoClaro={modoClaro}
+              ciclos={ciclos}
+              ativarCiclo={ativarCiclo}
+              criarCiclo={criarCiclo}
+              atualizarCiclo={atualizarCiclo}
+              deletarCiclo={deletarCiclo}
+              loading={ciclosLoading}
+              operationLoading={ciclosOperationLoading}
+            />
 
     {/* Botão adicionar treino */}
     {!adicionarTreinoVisivel && (

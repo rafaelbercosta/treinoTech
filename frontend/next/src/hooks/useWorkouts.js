@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export function useWorkouts() {
+export function useWorkouts(cicloId = null) {
   const router = useRouter();
   const [treinos, setTreinos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -178,7 +178,11 @@ export function useWorkouts() {
 
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts`, {
+      const url = cicloId 
+        ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts?cicloId=${cicloId}`
+        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts`;
+      
+      const res = await fetch(url, {
         headers: getAuthHeaders(),
       });
 
@@ -212,7 +216,7 @@ export function useWorkouts() {
         return await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/workouts`, {
           method: "POST",
           headers: getAuthHeaders(),
-          body: JSON.stringify({ nome }),
+          body: JSON.stringify({ nome, cicloId }),
           signal
         });
       });
@@ -525,6 +529,6 @@ export function useWorkouts() {
     deletarHistorico,
     moverExercicio,
     moverTreino,
-    fetchWorkouts
+    buscarTreinos: fetchWorkouts
   };
 }

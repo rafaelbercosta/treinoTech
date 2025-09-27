@@ -211,7 +211,7 @@ export default function WorkoutCard({
                   fecharOutrosFormularios('exForm');
                   onToggleExForm(treino._id);
                 }}
-                className={`px-1.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-1.5 sm:px-3 py-1 text-xs sm:text-base font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-blue-600 hover:text-blue-800' : 'text-blue-300 hover:text-white'
                 }`}
               >
@@ -222,22 +222,22 @@ export default function WorkoutCard({
                   fecharOutrosFormularios('concluir');
                   onToggleConcluir(treino._id);
                 }}
-                className={`px-1.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-1.5 sm:px-3 py-1 text-xs sm:text-base font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-green-600 hover:text-green-800' : 'text-green-300 hover:text-white'
                 }`}
               >
-                <span className="text-sm sm:text-base">✅</span> Registrar
+                <span className="text-[10px] sm:text-xs">✅</span> Registrar
               </button>
               <button
                 onClick={() => {
                   fecharOutrosFormularios('historico');
                   onToggleHistorico(treino._id);
                 }}
-                className={`px-1.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-1.5 sm:px-3 py-1 text-xs sm:text-base font-medium transition-all duration-300 whitespace-nowrap ${
                   modoClaro ? 'text-purple-600 hover:text-purple-800' : 'text-purple-300 hover:text-white'
                 }`}
               >
-                <span className="text-sm sm:text-base">🕐</span> Histórico
+                <span className="text-[10px] sm:text-xs">📅</span> Histórico
               </button>
               <button
                 onClick={() => {
@@ -245,7 +245,7 @@ export default function WorkoutCard({
                   onDeletarTreino(treino._id);
                 }}
                 disabled={operationLoading[`delete-workout-${treino._id}`]}
-                className={`px-1.5 sm:px-3 py-1 text-[10px] sm:text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-1.5 sm:px-3 py-1 text-xs sm:text-base font-medium transition-all duration-300 whitespace-nowrap ${
                   operationLoading[`delete-workout-${treino._id}`]
                     ? 'opacity-50 cursor-not-allowed'
                     : modoClaro ? 'text-red-600 hover:text-red-800' : 'text-red-300 hover:text-white'
@@ -257,7 +257,7 @@ export default function WorkoutCard({
                   </div>
                 ) : (
                   <>
-                    <span className="text-sm sm:text-base">✕</span> Excluir
+                    <span className="text-xs sm:text-sm">✕</span> Excluir
                   </>
                 )}
               </button>
@@ -312,7 +312,7 @@ export default function WorkoutCard({
                 <button
                   onClick={() => onConcluirTreino(treino._id)}
                   disabled={operationLoading[`conclude-workout-${treino._id}`]}
-                  className={`px-3 py-1 text-xs font-medium transition-all duration-300 ${
+                  className={`px-3 py-1 text-sm font-medium transition-all duration-300 ${
                     operationLoading[`conclude-workout-${treino._id}`]
                       ? 'opacity-50 cursor-not-allowed'
                       : modoClaro ? 'text-green-600 hover:text-green-800' : 'text-green-300 hover:text-white'
@@ -328,7 +328,7 @@ export default function WorkoutCard({
                 </button>
                 <button
                   onClick={() => onToggleConcluir(treino._id)}
-                  className={`px-3 py-1 text-xs font-medium transition-all duration-300 ${
+                  className={`px-3 py-1 text-sm font-medium transition-all duration-300 ${
                     modoClaro ? 'text-gray-600 hover:text-gray-800' : 'text-gray-300 hover:text-white'
                   }`}
                 >

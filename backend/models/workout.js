@@ -17,6 +17,7 @@ const HistoricoSchema = new mongoose.Schema({
 
 const WorkoutSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  cicloId: { type: mongoose.Schema.Types.ObjectId, ref: "Ciclo", required: false },
   nome: { type: String, required: true },
   exercicios: [ExerciseSchema],
   historico: [HistoricoSchema],

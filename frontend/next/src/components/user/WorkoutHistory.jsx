@@ -47,7 +47,13 @@ export default function WorkoutHistory({ treino, modoClaro, onDeletarHistorico, 
       </div>
       
       <div className="space-y-2 max-h-60 overflow-y-auto">
-        {treino.historico.map((registro, index) => (
+        {treino.historico
+          .sort((a, b) => {
+            const dataA = new Date(a.data);
+            const dataB = new Date(b.data);
+            return dataB - dataA; // Mais recente primeiro
+          })
+          .map((registro, index) => (
           <div
             key={registro._id || index}
             className={`p-2 rounded border ${
