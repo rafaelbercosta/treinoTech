@@ -174,19 +174,42 @@ export default function CycleSelector({
           <div className="flex-1 min-w-0">
           {editandoCiclo ? (
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={cicloEditando.nome}
+                onChange={(e) => setCicloEditando(prev => ({ ...prev, nome: e.target.value }))}
+                className={`w-2/3 px-2 py-1 text-sm border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${
+                  modoClaro
+                    ? 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'
+                    : 'border-white/20 bg-white/10 text-white focus:ring-blue-400'
+                }`}
+                maxLength={28}
+                autoFocus
+              />
+              <div className="flex gap-2">
                 <input
-                  type="text"
-                  value={cicloEditando.nome}
-                  onChange={(e) => setCicloEditando(prev => ({ ...prev, nome: e.target.value }))}
-                  className={`px-2 py-1 text-sm border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${
+                  type="date"
+                  value={cicloEditando.dataInicio}
+                  onChange={(e) => setCicloEditando(prev => ({ ...prev, dataInicio: e.target.value }))}
+                  className={`px-2 py-1 text-xs border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${
                     modoClaro
                       ? 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'
                       : 'border-white/20 bg-white/10 text-white focus:ring-blue-400'
                   }`}
-                  maxLength={28}
-                  autoFocus
                 />
+                <input
+                  type="date"
+                  value={cicloEditando.dataFim}
+                  onChange={(e) => setCicloEditando(prev => ({ ...prev, dataFim: e.target.value }))}
+                  className={`px-2 py-1 text-xs border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${
+                    modoClaro
+                      ? 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'
+                      : 'border-white/20 bg-white/10 text-white focus:ring-blue-400'
+                  }`}
+                  placeholder="Data de término (opcional)"
+                />
+              </div>
+              <div className="flex gap-2">
                 <button
                   onClick={handleSalvarEdicao}
                   disabled={operationLoading['update-cycle']}
@@ -212,29 +235,6 @@ export default function CycleSelector({
                 >
                   ✕ Excluir
                 </button>
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="date"
-                  value={cicloEditando.dataInicio}
-                  onChange={(e) => setCicloEditando(prev => ({ ...prev, dataInicio: e.target.value }))}
-                  className={`px-2 py-1 text-xs border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${
-                    modoClaro
-                      ? 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'
-                      : 'border-white/20 bg-white/10 text-white focus:ring-blue-400'
-                  }`}
-                />
-                <input
-                  type="date"
-                  value={cicloEditando.dataFim}
-                  onChange={(e) => setCicloEditando(prev => ({ ...prev, dataFim: e.target.value }))}
-                  className={`px-2 py-1 text-xs border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${
-                    modoClaro
-                      ? 'border-gray-300 bg-white text-gray-900 focus:ring-blue-500'
-                      : 'border-white/20 bg-white/10 text-white focus:ring-blue-400'
-                  }`}
-                  placeholder="Data de término (opcional)"
-                />
               </div>
             </div>
           ) : (
