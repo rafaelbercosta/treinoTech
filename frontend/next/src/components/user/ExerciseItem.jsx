@@ -201,7 +201,14 @@ export default function ExerciseItem({
               value={exercicio.carga}
               maxLength={5}
               onChange={(e) => {
-                const valor = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
+                let valor = e.target.value.replace(",", ".");
+                // Permitir apenas números e um ponto decimal
+                valor = valor.replace(/[^0-9.]/g, "");
+                // Evitar múltiplos pontos
+                const partes = valor.split(".");
+                if (partes.length > 2) {
+                  valor = partes[0] + "." + partes.slice(1).join("");
+                }
                 onUpdateCampoEx(treinoId, exercicio._id, 'carga', valor);
               }}
               className={`p-2 text-sm border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${
@@ -328,7 +335,7 @@ export default function ExerciseItem({
             className={`overflow-hidden transition-all duration-300 ease-in-out ${
               exercicioExpandido[exercicio._id] 
                 ? 'max-h-0 opacity-0 transform scale-95' 
-                : 'max-h-20 opacity-100 transform scale-100'
+                : 'max-h-24 opacity-100 transform scale-100'
             }`}
           >
             <div className="flex items-center justify-between w-full">
@@ -371,7 +378,7 @@ export default function ExerciseItem({
           
           {/* Seção expandida com informações detalhadas */}
           <div 
-            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+            className={`overflow-hidden transition-all duration-500 ease-in-out ${
               exercicioExpandido[exercicio._id] 
                 ? 'max-h-96 opacity-100 transform scale-100' 
                 : 'max-h-0 opacity-0 transform scale-95'
@@ -379,14 +386,14 @@ export default function ExerciseItem({
           >
             <div className="w-full">
               {/* Nome do exercício expandido */}
-              <div className="mb-3">
+              <div className={`mb-3 transition-all duration-300 ${exercicioExpandido[exercicio._id] ? 'delay-50 opacity-100 transform translate-y-0' : 'delay-0 opacity-0 transform -translate-y-2'}`}>
                 <h4 className={`font-bold text-base transition-colors duration-200 ${modoClaro ? 'text-blue-700' : 'text-blue-300'}`}>
                   {exercicio.nome}
                 </h4>
               </div>
               
               <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="transition-all duration-200 delay-75">
+                <div className={`transition-all duration-300 ${exercicioExpandido[exercicio._id] ? 'delay-75 opacity-100 transform translate-y-0' : 'delay-0 opacity-0 transform -translate-y-2'}`}>
                   <span className={`font-medium ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
                     Séries:
                   </span>
@@ -394,7 +401,7 @@ export default function ExerciseItem({
                     {exercicio.series}
                   </span>
                 </div>
-                <div className="transition-all duration-200 delay-100">
+                <div className={`transition-all duration-300 ${exercicioExpandido[exercicio._id] ? 'delay-100 opacity-100 transform translate-y-0' : 'delay-25 opacity-0 transform -translate-y-2'}`}>
                   <span className={`font-medium ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
                     Repetições:
                   </span>
@@ -402,7 +409,7 @@ export default function ExerciseItem({
                     {exercicio.repeticoes}
                   </span>
                 </div>
-                <div className="transition-all duration-200 delay-125">
+                <div className={`transition-all duration-300 ${exercicioExpandido[exercicio._id] ? 'delay-125 opacity-100 transform translate-y-0' : 'delay-50 opacity-0 transform -translate-y-2'}`}>
                   <span className={`font-medium ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
                     Carga:
                   </span>
@@ -410,7 +417,7 @@ export default function ExerciseItem({
                     {exercicio.carga}kg
                   </span>
                 </div>
-                <div className="transition-all duration-200 delay-150">
+                <div className={`transition-all duration-300 ${exercicioExpandido[exercicio._id] ? 'delay-150 opacity-100 transform translate-y-0' : 'delay-75 opacity-0 transform -translate-y-2'}`}>
                   <span className={`font-medium ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
                     Descanso:
                   </span>
@@ -422,7 +429,7 @@ export default function ExerciseItem({
               
               {/* Método de intensificação */}
               {exercicio.metodoIntensificacao && (
-                <div className="mt-3 transition-all duration-200 delay-175">
+                <div className={`mt-3 transition-all duration-300 ${exercicioExpandido[exercicio._id] ? 'delay-175 opacity-100 transform translate-y-0' : 'delay-100 opacity-0 transform -translate-y-2'}`}>
                   <span className={`font-medium text-sm ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
                     Método de intensificação:
                   </span>
@@ -434,7 +441,7 @@ export default function ExerciseItem({
               
               {/* Observações */}
               {exercicio.observacoes && (
-                <div className="mt-3 transition-all duration-200 delay-200">
+                <div className={`mt-3 transition-all duration-300 ${exercicioExpandido[exercicio._id] ? 'delay-200 opacity-100 transform translate-y-0' : 'delay-125 opacity-0 transform -translate-y-2'}`}>
                   <span className={`font-medium text-sm ${modoClaro ? 'text-gray-600' : 'text-gray-300'}`}>
                     Observações:
                   </span>
@@ -445,7 +452,7 @@ export default function ExerciseItem({
               )}
               
               {/* Botão de editar */}
-              <div className="mt-3 flex justify-end transition-all duration-200 delay-225">
+              <div className={`mt-3 flex justify-end transition-all duration-300 ${exercicioExpandido[exercicio._id] ? 'delay-225 opacity-100 transform translate-y-0' : 'delay-150 opacity-0 transform -translate-y-2'}`}>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
