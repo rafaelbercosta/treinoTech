@@ -148,9 +148,9 @@ export default function WorkoutCard({
           ) : (
             <button
               onClick={() => onToggleExpandir(treino._id)}
-              className={`font-semibold text-base transition-all duration-200 hover:scale-105 ${modoClaro ? 'text-gray-900' : 'text-white'}`}
+              className={`font-semibold text-base transition-all duration-500 hover:scale-105 ${modoClaro ? 'text-gray-900' : 'text-white'}`}
             >
-              <span className={`inline-block transition-transform duration-200 ${treinoExpandido[treino._id] ? 'rotate-90' : 'rotate-0'}`}>
+              <span className={`inline-block transition-all duration-300 ${treinoExpandido[treino._id] ? 'rotate-90 delay-0' : 'rotate-0 delay-150'}`}>
                 ►
               </span> <strong>{treino.nome}</strong>
             </button>
@@ -190,9 +190,9 @@ export default function WorkoutCard({
 
       {/* Conteúdo expandido */}
       <div 
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`overflow-hidden transition-all duration-200 ease-in-out ${
           treinoExpandido[treino._id] 
-            ? 'max-h-none opacity-100 transform scale-100' 
+            ? 'max-h-[2000px] opacity-100 transform scale-100' 
             : 'max-h-0 opacity-0 transform scale-95'
         }`}
       >
@@ -205,7 +205,7 @@ export default function WorkoutCard({
                 : 'max-h-0 opacity-0 transform scale-95'
             }`}
           >
-            <div className="flex gap-0.5 sm:gap-1 mb-4 -ml-1">
+            <div className={`flex gap-0.5 sm:gap-1 mb-4 -ml-1 transition-all duration-150 ${treinoExpandido[treino._id] ? 'delay-50 opacity-100 transform translate-y-0' : 'delay-0 opacity-0 transform -translate-y-2'}`}>
               <button
                 onClick={() => {
                   fecharOutrosFormularios('exForm');
@@ -371,7 +371,7 @@ export default function WorkoutCard({
 
           {/* Lista de exercícios */}
           {treino.exercicios && treino.exercicios.length > 0 && (
-            <div className="space-y-1 mb-4">
+            <div className={`space-y-1 mb-4 transition-all duration-150 ${treinoExpandido[treino._id] ? 'delay-100 opacity-100 transform translate-y-0' : 'delay-0 opacity-0 transform -translate-y-2'}`}>
               {treino.exercicios.map((exercicio, exercicioIndex) => (
                 <ExerciseItem
                   key={exercicio._id}
