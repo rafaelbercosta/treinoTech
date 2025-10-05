@@ -201,14 +201,7 @@ export default function ExerciseItem({
               value={exercicio.carga}
               maxLength={5}
               onChange={(e) => {
-                let valor = e.target.value.replace(",", ".");
-                // Permitir apenas números e um ponto decimal
-                valor = valor.replace(/[^0-9.]/g, "");
-                // Evitar múltiplos pontos
-                const partes = valor.split(".");
-                if (partes.length > 2) {
-                  valor = partes[0] + "." + partes.slice(1).join("");
-                }
+                const valor = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
                 onUpdateCampoEx(treinoId, exercicio._id, 'carga', valor);
               }}
               className={`p-2 text-sm border rounded backdrop-blur-sm focus:outline-none focus:ring-2 ${

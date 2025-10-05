@@ -257,6 +257,10 @@ export default function UserPage() {
             }
             if (campo === "carga") {
               const raw = String(valor).replace(",", ".").replace(/[^0-9.]/g, "");
+              // Manter como string se contém ponto, senão converter para número
+              if (raw.includes(".")) {
+                return { ...ex, carga: raw };
+              }
               return { ...ex, carga: raw === "" ? 0 : parseFloat(raw) || 0 };
             }
             return { ...ex, [campo]: valor };
