@@ -287,10 +287,15 @@ export function useWorkouts(cicloId = null) {
       }
 
       const updatedWorkout = await res.json();
+      
+      // Preservar ordem local dos exercícios
+      const exerciciosOrdenados = ordenarExerciciosPorOrdemSalva(treinoId, updatedWorkout.exercicios || []);
+      const workoutComOrdem = { ...updatedWorkout, exercicios: exerciciosOrdenados };
+      
       setTreinos((prev) =>
-        prev.map((t) => (t._id === treinoId ? updatedWorkout : t))
+        prev.map((t) => (t._id === treinoId ? workoutComOrdem : t))
       );
-      return updatedWorkout;
+      return workoutComOrdem;
     } catch (err) {
       console.error("Erro ao editar treino:", err);
       throw err;
@@ -401,10 +406,15 @@ export function useWorkouts(cicloId = null) {
       }
 
       const updatedWorkout = await res.json();
+      
+      // Preservar ordem local dos exercícios
+      const exerciciosOrdenados = ordenarExerciciosPorOrdemSalva(treinoId, updatedWorkout.exercicios);
+      const workoutComOrdem = { ...updatedWorkout, exercicios: exerciciosOrdenados };
+      
       setTreinos((prev) =>
-        prev.map((t) => (t._id === treinoId ? updatedWorkout : t))
+        prev.map((t) => (t._id === treinoId ? workoutComOrdem : t))
       );
-      return updatedWorkout;
+      return workoutComOrdem;
     } catch (err) {
       console.error("Erro ao editar exercício:", err);
       throw err;
@@ -436,10 +446,15 @@ export function useWorkouts(cicloId = null) {
       }
 
       const updatedWorkout = await res.json();
+      
+      // Preservar ordem local dos exercícios
+      const exerciciosOrdenados = ordenarExerciciosPorOrdemSalva(treinoId, updatedWorkout.exercicios || []);
+      const workoutComOrdem = { ...updatedWorkout, exercicios: exerciciosOrdenados };
+      
       setTreinos((prev) =>
-        prev.map((t) => (t._id === treinoId ? updatedWorkout : t))
+        prev.map((t) => (t._id === treinoId ? workoutComOrdem : t))
       );
-      return updatedWorkout;
+      return workoutComOrdem;
     } catch (err) {
       console.error("Erro ao registrar treino:", err);
       throw err;
@@ -463,8 +478,13 @@ export function useWorkouts(cicloId = null) {
       }
 
       const updatedWorkout = await res.json();
+      
+      // Preservar ordem local dos exercícios
+      const exerciciosOrdenados = ordenarExerciciosPorOrdemSalva(treinoId, updatedWorkout.exercicios || []);
+      const workoutComOrdem = { ...updatedWorkout, exercicios: exerciciosOrdenados };
+      
       setTreinos((prev) =>
-        prev.map((t) => (t._id === treinoId ? updatedWorkout : t))
+        prev.map((t) => (t._id === treinoId ? workoutComOrdem : t))
       );
     } catch (err) {
       console.error("Erro ao deletar histórico:", err);

@@ -44,7 +44,7 @@ export default function ExerciseItem({
   return (
     <div
       id={`exercise-${exercicio._id}`}
-      className={`p-2 rounded border backdrop-blur-sm relative transition-all duration-300 ease-in-out ${
+      className={`group p-2 rounded border backdrop-blur-sm relative transition-all duration-300 ease-in-out ${
         swipeActive[exercicio._id] ? 'scale-105 shadow-lg' : ''
       } ${
         modoClaro ? 'bg-gray-50 border-gray-300' : 'bg-white/10 border-white/20'
@@ -57,7 +57,11 @@ export default function ExerciseItem({
       } ${
         editandoEx[exercicio._id] ? 'ring-2 ring-blue-400/60 shadow-xl' : ''
       }`}
-      onTouchStart={(e) => onHandleTouchStart(e, exercicio._id, treinoId, exercicioIndex)}
+      onTouchStart={(e) => {
+        // Não processar se clicou nos botões de mover
+        if (e.target.closest('.move-buttons-container')) return;
+        onHandleTouchStart(e, exercicio._id, treinoId, exercicioIndex);
+      }}
       onTouchMove={(e) => onHandleTouchMove(e, exercicio._id)}
       onTouchEnd={(e) => {
         const result = onHandleTouchEnd(e, exercicio._id);
@@ -65,7 +69,11 @@ export default function ExerciseItem({
           onSwipeEnd(result, exercicio._id);
         }
       }}
-      onMouseDown={(e) => onHandleMouseStart(e, exercicio._id, treinoId, exercicioIndex)}
+      onMouseDown={(e) => {
+        // Não processar se clicou nos botões de mover
+        if (e.target.closest('.move-buttons-container')) return;
+        onHandleMouseStart(e, exercicio._id, treinoId, exercicioIndex);
+      }}
       onMouseMove={(e) => onHandleMouseMove(e, exercicio._id)}
       onMouseUp={(e) => {
         const result = onHandleMouseEnd(e, exercicio._id);
@@ -109,45 +117,69 @@ export default function ExerciseItem({
         </div>
       )}
 
-      {/* Botões de reordenação - aparecem apenas no hover */}
-      <div className="flex items-center justify-between mb-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="flex items-center gap-1">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoverExercicio(treinoId, exercicioIndex, 'up');
-            }}
-            className={`w-5 h-5 text-xs transition-all duration-300 rounded ${
-              exercicioIndex === 0 
-                ? 'opacity-30 cursor-not-allowed' 
-                : modoClaro 
-                  ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-100' 
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
-            }`}
-            disabled={exercicioIndex === 0}
-            title="Mover para cima"
-          >
-            ↑
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onMoverExercicio(treinoId, exercicioIndex, 'down');
-            }}
-            className={`w-5 h-5 text-xs transition-all duration-300 rounded ${
-              exercicioIndex === totalExercicios - 1 
-                ? 'opacity-30 cursor-not-allowed' 
-                : modoClaro 
-                  ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-100' 
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
-            }`}
-            disabled={exercicioIndex === totalExercicios - 1}
-            title="Mover para baixo"
-          >
-            ↓
-          </button>
+      {/* Botões de reordenação - aparecem apenas quando modo swipe está ativo */}
+      {modoSwipeAtivo ? (
+        <div 
+          className="move-buttons-container flex items-center justify-between mb-1 transition-opacity"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+        >
+          <div className="flex items-center gap-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onMoverExercicio(treinoId, exercicioIndex, 'up');
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              className={`w-5 h-5 text-xs transition-all duration-300 rounded ${
+                exercicioIndex === 0 
+                  ? 'opacity-30 cursor-not-allowed' 
+                  : modoClaro 
+                    ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-100' 
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
+              }`}
+              disabled={exercicioIndex === 0}
+              title="Mover para cima"
+            >
+              ↑
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                onMoverExercicio(treinoId, exercicioIndex, 'down');
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              className={`w-5 h-5 text-xs transition-all duration-300 rounded ${
+                exercicioIndex === totalExercicios - 1 
+                  ? 'opacity-30 cursor-not-allowed' 
+                  : modoClaro 
+                    ? 'text-gray-500 hover:text-gray-700 hover:bg-gray-100' 
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
+              }`}
+              disabled={exercicioIndex === totalExercicios - 1}
+              title="Mover para baixo"
+            >
+              ↓
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="mb-1 h-5"></div>
+      )}
 
       {editandoEx[exercicio._id] ? (
         <div className="space-y-3 pb-8 mb-4">
@@ -312,16 +344,28 @@ export default function ExerciseItem({
         </div>
       ) : (
         <div 
-          className={`cursor-pointer transition-all duration-200 hover:opacity-80 ${
+          className={`transition-all duration-200 ${
+            modoSwipeAtivo 
+              ? 'cursor-default' 
+              : 'cursor-pointer hover:opacity-80'
+          } ${
             exercicioExpandido[exercicio._id] 
               ? 'hover:scale-[1.02]' 
               : 'hover:scale-[1.01]'
           }`}
           onClick={() => {
+            // Não expandir se o modo swipe estiver ativo
+            if (modoSwipeAtivo) return;
             fecharFormulariosAoEditar();
             onToggleExpandirExercicio(exercicio._id);
           }}
-          title={exercicioExpandido[exercicio._id] ? "Clique para minimizar" : "Clique para expandir"}
+          title={
+            modoSwipeAtivo 
+              ? "Modo de reordenação ativo - desative para expandir" 
+              : exercicioExpandido[exercicio._id] 
+                ? "Clique para minimizar" 
+                : "Clique para expandir"
+          }
         >
           {/* Conteúdo minimizado */}
           <div 
