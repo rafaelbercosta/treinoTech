@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import workouts from "./routes/workoutRoutes.js";
 import cycles from "./routes/cycleRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 // Carregar variáveis de ambiente apenas em desenvolvimento local
 if (process.env.NODE_ENV !== 'production') {
@@ -36,6 +37,7 @@ app.get("/api", (req, res) => {
 app.use("/api", authRoutes);
 app.use("/api/workouts", workouts);
 app.use("/api/cycles", cycles);
+app.use("/api/admin", adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 

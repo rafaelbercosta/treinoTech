@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 
 export function useUser() {
   const router = useRouter();
-  const [nomeUsuario, setNomeUsuario] = useState("");
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // ===== Utilitário Headers =====
   const getAuthHeaders = () => {
@@ -32,17 +33,21 @@ export function useUser() {
   const sair = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    setUser(null);
     router.push("/login");
   };
 
-  // ===== Carregar nome do usuário =====
-  const carregarNomeUsuario = async () => {
+  // ===== Carregar dados do usuário =====
+  const carregarDadosUsuario = async () => {
     try {
+      setLoading(true);
+      
       // Primeiro tenta carregar do localStorage
       const userData = localStorage.getItem("user");
       if (userData) {
         const user = JSON.parse(userData);
-        setNomeUsuario(user.name || "Usuário");
+        setUser(user);
+        setLoading(false);
         return;
       }
 
@@ -52,29 +57,36 @@ export function useUser() {
       });
 
       if (verificarTokenExpirado(res)) {
+        setLoading(false);
         return;
       }
 
       if (res.ok) {
         const userData = await res.json();
-        setNomeUsuario(userData.name || "Usuário");
+        setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));
       } else {
-        setNomeUsuario("Usuário");
+        setUser(null);
       }
     } catch (error) {
-      console.error("Erro ao carregar nome do usuário:", error);
-      setNomeUsuario("Usuário");
+      console.error("Erro ao carregar dados do usuário:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    carregarNomeUsuario();
+    carregarDadosUsuario();
   }, []);
 
   return {
-    nomeUsuario,
+    user,
+    loading,
     sair,
-    carregarNomeUsuario
+    carregarDadosUsuario,
+    // Manter compatibilidade com código existente
+    nomeUsuario: user?.name || "Usuário",
+    carregarNomeUsuario: carregarDadosUsuario
   };
 }
