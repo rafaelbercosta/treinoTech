@@ -147,12 +147,15 @@ export const deleteCycle = async (req, res) => {
 // Gerenciar treinos de usuários
 export const getAllWorkouts = async (req, res) => {
   try {
+    console.log('🔍 getAllWorkouts - Iniciando busca de treinos...');
     const workouts = await Workout.find()
       .populate('userId', 'name email')
       .populate('cicloId', 'nome')
       .sort({ createdAt: -1 });
+    console.log('🔍 getAllWorkouts - Treinos encontrados:', workouts.length);
     res.json(workouts);
   } catch (error) {
+    console.error('❌ getAllWorkouts - Erro:', error);
     res.status(500).json({ message: "Erro ao buscar treinos", error: error.message });
   }
 };

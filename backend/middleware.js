@@ -4,23 +4,18 @@ import "dotenv/config";
 
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  console.log('🔐 authMiddleware - Header:', authHeader);
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    console.log('🔐 authMiddleware - Token não fornecido');
     return res.status(401).json({ message: "Token não fornecido" });
   }
 
   const token = authHeader.split(" ")[1];
-  console.log('🔐 authMiddleware - Token:', token ? 'Presente' : 'Ausente');
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('🔐 authMiddleware - Token válido, user:', decoded);
     req.user = decoded;
     next();
   } catch (err) {
-    console.log('🔐 authMiddleware - Erro ao verificar token:', err.message);
     return res.status(401).json({ message: "Token inválido ou expirado" });
   }
 };
