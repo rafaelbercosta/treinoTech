@@ -1,5 +1,7 @@
 export async function fetchWithAuth(url, options = {}) {
   const token = localStorage.getItem("token");
+  console.log('🔍 fetchWithAuth - URL:', url);
+  console.log('🔍 fetchWithAuth - Token:', token ? 'Presente' : 'Ausente');
 
   const headers = {
     ...options.headers,
@@ -7,7 +9,9 @@ export async function fetchWithAuth(url, options = {}) {
     Authorization: `Bearer ${token}`,
   };
 
+  console.log('🔍 fetchWithAuth - Headers:', headers);
   const res = await fetch(url, { ...options, headers });
+  console.log('🔍 fetchWithAuth - Status:', res.status);
 
   if (res.status === 401) {
     localStorage.removeItem("user");

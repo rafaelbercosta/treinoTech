@@ -29,10 +29,14 @@ export default function AdminWorkoutsPage() {
 
   const fetchWorkouts = async () => {
     try {
-      const data = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/workouts`);
+      console.log('🚀 Iniciando busca de treinos...');
+      const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/workouts`;
+      console.log('🚀 URL:', url);
+      const data = await fetchWithAuth(url);
+      console.log('🚀 Dados recebidos:', data);
       setWorkouts(data);
     } catch (error) {
-      console.error('Erro ao buscar treinos:', error);
+      console.error('❌ Erro ao buscar treinos:', error);
       alert('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
     } finally {
       setLoadingWorkouts(false);
