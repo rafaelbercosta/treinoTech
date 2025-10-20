@@ -12,10 +12,12 @@ const authMiddleware = (req, res, next) => {
   const token = authHeader.split(" ")[1];
 
   try {
+    console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Definido' : 'Não definido');
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (err) {
+    console.error('Erro ao verificar token:', err.message);
     return res.status(401).json({ message: "Token inválido ou expirado" });
   }
 };

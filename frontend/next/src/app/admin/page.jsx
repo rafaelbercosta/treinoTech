@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import FixedHeader from '../../components/FixedHeader';
 import DynamicBackground from '../../components/DynamicBackground';
 import { useUser } from '../../hooks/useUser';
-import { fetchWithAuth } from '../../../utils/fetchWithAuth';
+import { fetchWithAuth } from '../../utils/fetchWithAuth';
 
 export default function AdminPage() {
-  const { user, loading } = useUser();
+  const { user, loading, sair } = useUser();
   const router = useRouter();
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -26,13 +26,11 @@ export default function AdminPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetchWithAuth('/api/admin/stats');
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
-      }
+      const data = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/stats`);
+      setStats(data);
     } catch (error) {
       console.error('Erro ao buscar estatísticas:', error);
+      alert('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
     } finally {
       setLoadingStats(false);
     }
@@ -58,9 +56,18 @@ export default function AdminPage() {
       <div className="container mx-auto px-4 py-8 pt-20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-4">
-              Painel de Administração
-            </h1>
+            <div className="flex justify-between items-center mb-4">
+              <div></div>
+              <h1 className="text-4xl font-bold text-white">
+                Painel de Administração
+              </h1>
+              <button
+                onClick={sair}
+                className="text-white hover:text-red-300 transition-colors text-lg font-medium px-4 py-2"
+              >
+                Sair
+              </button>
+            </div>
             <p className="text-blue-200 text-lg">
               Gerencie usuários, ciclos e treinos do sistema
             </p>

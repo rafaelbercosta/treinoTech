@@ -46,26 +46,34 @@ export function useUser() {
       const userData = localStorage.getItem("user");
       if (userData) {
         const user = JSON.parse(userData);
+        console.log('useUser - Dados do localStorage:', user);
         setUser(user);
         setLoading(false);
         return;
       }
 
       // Se não tiver no localStorage, busca da API
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/user`, {
-        headers: getAuthHeaders(),
-      });
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/user`, {
+          headers: getAuthHeaders(),
+        });
 
-      if (verificarTokenExpirado(res)) {
-        setLoading(false);
-        return;
-      }
+        if (verificarTokenExpirado(res)) {
+          setLoading(false);
+          return;
+        }
 
-      if (res.ok) {
-        const userData = await res.json();
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-      } else {
+        if (res.ok) {
+          const userData = await res.json();
+          console.log('useUser - Dados da API:', userData);
+          setUser(userData);
+          localStorage.setItem("user", JSON.stringify(userData));
+        } else {
+          console.log('useUser - API retornou erro:', res.status);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('useUser - Erro ao conectar com API:', error);
         setUser(null);
       }
     } catch (error) {
@@ -77,6 +85,25 @@ export function useUser() {
   };
 
   useEffect(() => {
+    // Carregar dados do localStorage imediatamente
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        console.log('useUser - Dados do localStorage:', user);
+        console.log('useUser - isAdmin do localStorage:', user.isAdmin);
+        setUser(user);
+        setLoading(false);
+        return;
+      } catch (error) {
+        console.error('Erro ao parsear dados do localStorage:', error);
+        localStorage.removeItem("user");
+        setLoading(false);
+        return;
+      }
+    }
+    
+    // Se não tem dados no localStorage, tenta carregar da API
     carregarDadosUsuario();
   }, []);
 

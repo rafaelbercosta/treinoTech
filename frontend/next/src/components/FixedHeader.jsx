@@ -6,6 +6,7 @@ import Link from 'next/link';
 export default function FixedHeader() {
   const { user, loading } = useUser();
 
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b border-blue-400/20" style={{ backgroundColor: '#000030' }}>
       <div className="flex items-center justify-between p-3 relative">
@@ -26,24 +27,7 @@ export default function FixedHeader() {
 
         {/* Menu de navegação */}
         <div className="flex items-center space-x-4 relative z-10">
-          {!loading && user && (
-            <>
-              <Link 
-                href="/user" 
-                className="text-white hover:text-blue-300 transition-colors text-sm font-medium"
-              >
-                Meus Treinos
-              </Link>
-              {user.isAdmin && (
-                <Link 
-                  href="/admin" 
-                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm font-medium transition-colors"
-                >
-                  Admin
-                </Link>
-              )}
-            </>
-          )}
+          {/* Botão removido - agora está na página de delete-user */}
         </div>
       </div>
     </div>

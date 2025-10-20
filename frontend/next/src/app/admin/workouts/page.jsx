@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import FixedHeader from '../../../components/FixedHeader';
 import DynamicBackground from '../../../components/DynamicBackground';
 import { useUser } from '../../../hooks/useUser';
-import { fetchWithAuth } from '../../../../utils/fetchWithAuth';
+import { fetchWithAuth } from '../../../utils/fetchWithAuth';
 
 export default function AdminWorkoutsPage() {
   const { user, loading } = useUser();
@@ -29,13 +29,11 @@ export default function AdminWorkoutsPage() {
 
   const fetchWorkouts = async () => {
     try {
-      const response = await fetchWithAuth('/api/admin/workouts');
-      if (response.ok) {
-        const data = await response.json();
-        setWorkouts(data);
-      }
+      const data = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/workouts`);
+      setWorkouts(data);
     } catch (error) {
       console.error('Erro ao buscar treinos:', error);
+      alert('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
     } finally {
       setLoadingWorkouts(false);
     }
@@ -52,7 +50,7 @@ export default function AdminWorkoutsPage() {
 
   const handleSaveWorkout = async () => {
     try {
-      const response = await fetchWithAuth(`/api/admin/workouts/${editingWorkout._id}`, {
+      await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/workouts/${editingWorkout._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -76,14 +74,12 @@ export default function AdminWorkoutsPage() {
   const handleDeleteWorkout = async (workoutId, workoutName) => {
     if (confirm(`Tem certeza que deseja deletar o treino "${workoutName}"?`)) {
       try {
-        const response = await fetchWithAuth(`/api/admin/workouts/${workoutId}`, {
+        await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/workouts/${workoutId}`, {
           method: 'DELETE'
         });
 
-        if (response.ok) {
-          await fetchWorkouts();
-          alert('Treino deletado com sucesso!');
-        }
+        await fetchWorkouts();
+        alert('Treino deletado com sucesso!');
       } catch (error) {
         console.error('Erro ao deletar treino:', error);
         alert('Erro ao deletar treino');

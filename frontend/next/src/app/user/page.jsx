@@ -15,7 +15,7 @@ import CycleSelector from "../../components/user/CycleSelector";
 
 export default function UserPage() {
   const modoClaro = useTheme();
-  const { nomeUsuario, sair } = useUser();
+  const { nomeUsuario, sair, user } = useUser();
   const { cicloAtivo, buscarCicloAtivo, ativarCiclo, ciclos, criarCiclo, atualizarCiclo, deletarCiclo, loading: ciclosLoading, operationLoading: ciclosOperationLoading } = useCycles();
   const [cicloIdAtivo, setCicloIdAtivo] = useState(null);
   
@@ -315,7 +315,8 @@ export default function UserPage() {
       <UserHeader 
         nomeUsuario={nomeUsuario} 
         onSair={sair} 
-        modoClaro={modoClaro} 
+        modoClaro={modoClaro}
+        user={user}
       />
 
     {/* Seletor de Ciclo */}

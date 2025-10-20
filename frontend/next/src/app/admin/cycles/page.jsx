@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import FixedHeader from '../../../components/FixedHeader';
 import DynamicBackground from '../../../components/DynamicBackground';
 import { useUser } from '../../../hooks/useUser';
-import { fetchWithAuth } from '../../../../utils/fetchWithAuth';
+import { fetchWithAuth } from '../../../utils/fetchWithAuth';
 
 export default function AdminCyclesPage() {
   const { user, loading } = useUser();
@@ -27,13 +27,11 @@ export default function AdminCyclesPage() {
 
   const fetchCycles = async () => {
     try {
-      const response = await fetchWithAuth('/api/admin/cycles');
-      if (response.ok) {
-        const data = await response.json();
-        setCycles(data);
-      }
+      const data = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/cycles`);
+      setCycles(data);
     } catch (error) {
       console.error('Erro ao buscar ciclos:', error);
+      alert('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
     } finally {
       setLoadingCycles(false);
     }
@@ -49,7 +47,7 @@ export default function AdminCyclesPage() {
 
   const handleSaveCycle = async () => {
     try {
-      const response = await fetchWithAuth(`/api/admin/cycles/${editingCycle._id}`, {
+      await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/cycles/${editingCycle._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -75,14 +73,12 @@ export default function AdminCyclesPage() {
   const handleDeleteCycle = async (cycleId, cycleName) => {
     if (confirm(`Tem certeza que deseja deletar o ciclo "${cycleName}"? Todos os treinos associados também serão deletados.`)) {
       try {
-        const response = await fetchWithAuth(`/api/admin/cycles/${cycleId}`, {
+        await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/cycles/${cycleId}`, {
           method: 'DELETE'
         });
 
-        if (response.ok) {
-          await fetchCycles();
-          alert('Ciclo deletado com sucesso!');
-        }
+        await fetchCycles();
+        alert('Ciclo deletado com sucesso!');
       } catch (error) {
         console.error('Erro ao deletar ciclo:', error);
         alert('Erro ao deletar ciclo');

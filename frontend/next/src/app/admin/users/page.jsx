@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import FixedHeader from '../../../components/FixedHeader';
 import DynamicBackground from '../../../components/DynamicBackground';
 import { useUser } from '../../../hooks/useUser';
-import { fetchWithAuth } from '../../../../utils/fetchWithAuth';
+import { fetchWithAuth } from '../../../utils/fetchWithAuth';
 
 export default function AdminUsersPage() {
   const { user, loading } = useUser();
@@ -29,13 +29,11 @@ export default function AdminUsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetchWithAuth('/api/admin/users');
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data);
-      }
+      const data = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users`);
+      setUsers(data);
     } catch (error) {
       console.error('Erro ao buscar usuários:', error);
+      alert('Erro ao conectar com o servidor. Verifique se o backend está rodando.');
     } finally {
       setLoadingUsers(false);
     }
@@ -43,14 +41,12 @@ export default function AdminUsersPage() {
 
   const fetchUserDetails = async (userId) => {
     try {
-      const response = await fetchWithAuth(`/api/admin/users/${userId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setSelectedUser(data);
-        setShowUserDetails(true);
-      }
+      const data = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${userId}`);
+      setSelectedUser(data);
+      setShowUserDetails(true);
     } catch (error) {
       console.error('Erro ao buscar detalhes do usuário:', error);
+      alert('Erro ao buscar detalhes do usuário');
     }
   };
 
@@ -60,7 +56,7 @@ export default function AdminUsersPage() {
 
   const handleSaveUser = async () => {
     try {
-      const response = await fetchWithAuth(`/api/admin/users/${editingUser._id}`, {
+      await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${editingUser._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -70,11 +66,9 @@ export default function AdminUsersPage() {
         })
       });
 
-      if (response.ok) {
-        await fetchUsers();
-        setEditingUser(null);
-        alert('Usuário atualizado com sucesso!');
-      }
+      await fetchUsers();
+      setEditingUser(null);
+      alert('Usuário atualizado com sucesso!');
     } catch (error) {
       console.error('Erro ao atualizar usuário:', error);
       alert('Erro ao atualizar usuário');
@@ -84,14 +78,12 @@ export default function AdminUsersPage() {
   const handleDeleteUser = async (userId, userName) => {
     if (confirm(`Tem certeza que deseja deletar o usuário "${userName}"? Esta ação não pode ser desfeita.`)) {
       try {
-        const response = await fetchWithAuth(`/api/admin/users/${userId}`, {
+        await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users/${userId}`, {
           method: 'DELETE'
         });
 
-        if (response.ok) {
-          await fetchUsers();
-          alert('Usuário deletado com sucesso!');
-        }
+        await fetchUsers();
+        alert('Usuário deletado com sucesso!');
       } catch (error) {
         console.error('Erro ao deletar usuário:', error);
         alert('Erro ao deletar usuário');
