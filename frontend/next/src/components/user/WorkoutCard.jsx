@@ -50,6 +50,8 @@ export default function WorkoutCard({
   novoHistoricoObs,
   exercicioExpandido,
   onToggleExpandirExercicio,
+  exerciciosConcluidos,
+  onToggleExercicioConcluido,
   setNovoHistoricoObs,
   successPopupTreino,
   swipeStart,
@@ -404,6 +406,8 @@ export default function WorkoutCard({
                   setExFormVisivel={setExFormVisivel}
                   exercicioExpandido={exercicioExpandido}
                   onToggleExpandirExercicio={onToggleExpandirExercicio}
+                  exerciciosConcluidos={exerciciosConcluidos}
+                  onToggleExercicioConcluido={onToggleExercicioConcluido}
                   operationLoading={operationLoading}
                 />
               ))}

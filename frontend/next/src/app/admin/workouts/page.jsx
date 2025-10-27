@@ -15,6 +15,13 @@ export default function AdminWorkoutsPage() {
   const [selectedWorkout, setSelectedWorkout] = useState(null);
   const [showWorkoutDetails, setShowWorkoutDetails] = useState(false);
   const [editingWorkout, setEditingWorkout] = useState(null);
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState('');
+  const [cycles, setCycles] = useState([]);
+  const [selectedCycleId, setSelectedCycleId] = useState('');
+  const [loadingCycles, setLoadingCycles] = useState(false);
+  const [showCreateWorkout, setShowCreateWorkout] = useState(false);
 
   useEffect(() => {
     if (!loading && (!user || !user.isAdmin)) {
@@ -24,8 +31,10 @@ export default function AdminWorkoutsPage() {
 
     if (user && user.isAdmin) {
       fetchWorkouts();
+      fetchUsers();
     }
   }, [user, loading, router]);
+
 
   const fetchWorkouts = async () => {
     try {
@@ -38,6 +47,51 @@ export default function AdminWorkoutsPage() {
       setLoadingWorkouts(false);
     }
   };
+
+  const fetchUsers = async () => {
+    try {
+      const data = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/users`);
+      // Ordenar usuários por nome em ordem alfabética
+      const sortedUsers = data.sort((a, b) => {
+        const nameA = a.name || '';
+        const nameB = b.name || '';
+        return nameA.localeCompare(nameB, 'pt-BR');
+      });
+      setUsers(sortedUsers);
+    } catch (error) {
+      console.error('Erro ao buscar usuários:', error);
+    }
+  };
+
+  const fetchCycles = async (userId) => {
+    if (!userId) {
+      setCycles([]);
+      return;
+    }
+    
+    setLoadingCycles(true);
+    try {
+      const data = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/cycles`);
+      // Filtrar ciclos do usuário selecionado
+      const userCycles = data.filter(cycle => cycle.usuario._id === userId);
+      setCycles(userCycles);
+    } catch (error) {
+      console.error('Erro ao buscar ciclos:', error);
+      setCycles([]);
+    } finally {
+      setLoadingCycles(false);
+    }
+  };
+
+  const filteredWorkouts = workouts.filter(workout => {
+    // Filtro por usuário
+    const matchesUser = !selectedUserId || (workout.userId && workout.userId._id === selectedUserId);
+    
+    // Filtro por ciclo
+    const matchesCycle = !selectedCycleId || (workout.cicloId && workout.cicloId._id === selectedCycleId);
+    
+    return matchesUser && matchesCycle;
+  });
 
   const handleViewWorkout = (workout) => {
     setSelectedWorkout(workout);
@@ -60,11 +114,9 @@ export default function AdminWorkoutsPage() {
         })
       });
 
-      if (response.ok) {
-        await fetchWorkouts();
-        setEditingWorkout(null);
-        alert('Treino atualizado com sucesso!');
-      }
+      await fetchWorkouts();
+      setEditingWorkout(null);
+      alert('Treino atualizado com sucesso!');
     } catch (error) {
       console.error('Erro ao atualizar treino:', error);
       alert('Erro ao atualizar treino');
@@ -87,6 +139,48 @@ export default function AdminWorkoutsPage() {
     }
   };
 
+  const handleUserChange = (userId) => {
+    setSelectedUserId(userId);
+    setSelectedCycleId(''); // Limpar seleção de ciclo quando usuário muda
+    fetchCycles(userId);
+  };
+
+  const handleCycleChange = (cycleId) => {
+    setSelectedCycleId(cycleId);
+  };
+
+  const clearFilters = () => {
+    setSelectedUserId('');
+    setSelectedCycleId('');
+    setCycles([]);
+  };
+
+  const toggleDropdown = (workoutId) => {
+    setOpenDropdown(openDropdown === workoutId ? null : workoutId);
+  };
+
+  const closeDropdown = () => {
+    setOpenDropdown(null);
+  };
+
+  const handleCreateWorkout = async (workoutData) => {
+    try {
+      await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/workouts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(workoutData)
+      });
+
+      await fetchWorkouts();
+      setShowCreateWorkout(false);
+      alert('Treino criado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao criar treino:', error);
+      alert('Erro ao criar treino');
+    }
+  };
+
+
   if (loading || loadingWorkouts) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center">
@@ -104,24 +198,90 @@ export default function AdminWorkoutsPage() {
       <DynamicBackground />
       <FixedHeader />
       
-      <div className="container mx-auto px-4 py-8 pt-20">
+      <div className="container mx-auto px-4 py-8 pt-32">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-4xl font-bold text-white mb-2">Gerenciar Treinos</h1>
-              <p className="text-blue-200">Visualize e gerencie todos os treinos do sistema</p>
+              <h1 className="text-3xl font-bold text-white mb-2">Gerenciar Treinos</h1>
             </div>
-            <button
-              onClick={() => router.push('/admin')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              ← Voltar
-            </button>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowCreateWorkout(true)}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                + Criar Treino
+              </button>
+              <button
+                onClick={() => router.push('/admin')}
+                className="text-blue-300 hover:text-blue-200 transition-colors"
+              >
+                ← Voltar
+              </button>
+            </div>
+          </div>
+
+          {/* Filtros */}
+          <div className="mb-6">
+            <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 p-4">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4">
+                  <label className="text-white font-semibold">Filtrar por usuário:</label>
+                  <select
+                    value={selectedUserId}
+                    onChange={(e) => handleUserChange(e.target.value)}
+                    className="bg-white/20 border border-white/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 min-w-[200px]"
+                  >
+                    <option value="">Todos os usuários</option>
+                    {users.map((user) => (
+                      <option key={user._id} value={user._id} className="bg-gray-800">
+                        {user.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                {selectedUserId && (
+                  <div className="flex items-center space-x-4">
+                    <label className="text-white font-semibold">Filtrar por ciclo:</label>
+                    <select
+                      value={selectedCycleId}
+                      onChange={(e) => handleCycleChange(e.target.value)}
+                      className="bg-white/20 border border-white/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 min-w-[200px]"
+                      disabled={loadingCycles}
+                    >
+                      <option value="">Todos os ciclos</option>
+                      {cycles.map((cycle) => (
+                        <option key={cycle._id} value={cycle._id} className="bg-gray-800">
+                          {cycle.nome} {cycle.ativo ? '(Ativo)' : ''}
+                        </option>
+                      ))}
+                    </select>
+                    {loadingCycles && (
+                      <div className="text-blue-200 text-sm">Carregando ciclos...</div>
+                    )}
+                    {!loadingCycles && cycles.length === 0 && (
+                      <div className="text-yellow-200 text-sm">Usuário não possui ciclos</div>
+                    )}
+                  </div>
+                )}
+                
+                {(selectedUserId || selectedCycleId) && (
+                  <div className="flex items-center space-x-4">
+                    <button
+                      onClick={clearFilters}
+                      className="text-red-400 hover:text-red-300 transition-colors text-sm px-3 py-1 border border-red-400/30 rounded-lg hover:bg-red-400/10"
+                    >
+                      Limpar todos os filtros
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Lista de Treinos */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 overflow-hidden">
-            <div className="overflow-x-auto">
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 overflow-visible">
+            <div className="overflow-x-auto overflow-y-visible">
               <table className="w-full">
                 <thead className="bg-white/20">
                   <tr>
@@ -130,11 +290,11 @@ export default function AdminWorkoutsPage() {
                     <th className="px-6 py-4 text-left text-white font-semibold">Ciclo</th>
                     <th className="px-6 py-4 text-left text-white font-semibold">Exercícios</th>
                     <th className="px-6 py-4 text-left text-white font-semibold">Histórico</th>
-                    <th className="px-6 py-4 text-left text-white font-semibold">Ações</th>
+                    <th className="px-6 py-4"></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {workouts.map((workout) => (
+                  {filteredWorkouts.map((workout) => (
                     <tr key={workout._id} className="border-t border-white/10 hover:bg-white/5">
                       <td className="px-6 py-4 text-white">{workout.nome}</td>
                       <td className="px-6 py-4 text-blue-200">{workout.userId?.name || 'Usuário não encontrado'}</td>
@@ -142,25 +302,51 @@ export default function AdminWorkoutsPage() {
                       <td className="px-6 py-4 text-white">{workout.exercicios?.length || 0}</td>
                       <td className="px-6 py-4 text-white">{workout.historico?.length || 0}</td>
                       <td className="px-6 py-4">
-                        <div className="flex space-x-2">
+                        <div className="relative flex justify-end items-center">
                           <button
-                            onClick={() => handleViewWorkout(workout)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                            onClick={() => toggleDropdown(workout._id)}
+                            className="text-white hover:text-gray-300 text-xl transition-colors p-1"
+                            title="Ações"
                           >
-                            Ver
+                            ⋮
                           </button>
-                          <button
-                            onClick={() => handleEditWorkout(workout)}
-                            className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm transition-colors"
-                          >
-                            Editar
-                          </button>
-                          <button
-                            onClick={() => handleDeleteWorkout(workout._id, workout.nome)}
-                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
-                          >
-                            Deletar
-                          </button>
+                          
+                          {openDropdown === workout._id && (
+                            <div className="absolute right-8 top-0 bg-white/90 backdrop-blur-lg rounded-lg shadow-lg border border-white/20 z-50 p-2">
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => {
+                                    handleViewWorkout(workout);
+                                    closeDropdown();
+                                  }}
+                                  className="text-blue-300 hover:text-blue-200 text-sm transition-colors"
+                                  title="Ver detalhes"
+                                >
+                                  📋
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    handleEditWorkout(workout);
+                                    closeDropdown();
+                                  }}
+                                  className="text-yellow-300 hover:text-yellow-200 text-sm transition-colors"
+                                  title="Editar treino"
+                                >
+                                  ✏️
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    handleDeleteWorkout(workout._id, workout.nome);
+                                    closeDropdown();
+                                  }}
+                                  className="text-red-500 hover:text-red-400 text-lg transition-colors font-bold"
+                                  title="Excluir treino"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -187,6 +373,15 @@ export default function AdminWorkoutsPage() {
           onSave={handleSaveWorkout}
           onCancel={() => setEditingWorkout(null)}
           onChange={(field, value) => setEditingWorkout({ ...editingWorkout, [field]: value })}
+        />
+      )}
+
+      {/* Modal de Criação de Treino */}
+      {showCreateWorkout && (
+        <CreateWorkoutModal
+          users={users}
+          onSave={handleCreateWorkout}
+          onCancel={() => setShowCreateWorkout(false)}
         />
       )}
     </div>
@@ -340,7 +535,16 @@ function EditWorkoutModal({ workout, onSave, onCancel, onChange }) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 max-w-4xl w-full max-h-[80vh] overflow-y-auto">
         <div className="p-6">
-          <h2 className="text-2xl font-bold text-white mb-6">Editar Treino</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-white">Editar Treino</h2>
+            <button
+              onClick={onCancel}
+              className="text-white hover:text-gray-300 text-2xl"
+              title="Cancelar"
+            >
+              ×
+            </button>
+          </div>
 
           <div className="space-y-6">
             <div>
@@ -357,12 +561,13 @@ function EditWorkoutModal({ workout, onSave, onCancel, onChange }) {
             <div>
               <div className="flex justify-between items-center mb-4">
                 <label className="text-blue-200 text-sm font-medium">Exercícios</label>
-                <button
-                  onClick={addExercise}
-                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors"
-                >
-                  + Adicionar Exercício
-                </button>
+            <button
+              onClick={addExercise}
+              className="text-green-300 hover:text-green-200 text-sm transition-colors"
+              title="Adicionar exercício"
+            >
+              ➕
+            </button>
               </div>
               <div className="space-y-4 max-h-64 overflow-y-auto">
                 {exercicios.map((exercise, index) => (
@@ -371,9 +576,10 @@ function EditWorkoutModal({ workout, onSave, onCancel, onChange }) {
                       <span className="text-white font-medium">Exercício {index + 1}</span>
                       <button
                         onClick={() => removeExercise(index)}
-                        className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-sm transition-colors"
+                        className="text-red-500 hover:text-red-400 text-lg transition-colors font-bold"
+                        title="Excluir exercício"
                       >
-                        Remover
+                        ✕
                       </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -450,12 +656,13 @@ function EditWorkoutModal({ workout, onSave, onCancel, onChange }) {
             <div>
               <div className="flex justify-between items-center mb-4">
                 <label className="text-blue-200 text-sm font-medium">Histórico</label>
-                <button
-                  onClick={addHistoryEntry}
-                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors"
-                >
-                  + Adicionar Entrada
-                </button>
+            <button
+              onClick={addHistoryEntry}
+              className="text-green-300 hover:text-green-200 text-sm transition-colors"
+              title="Adicionar entrada no histórico"
+            >
+              ➕
+            </button>
               </div>
               <div className="space-y-3 max-h-32 overflow-y-auto">
                 {historico.map((entry, index) => (
@@ -464,9 +671,10 @@ function EditWorkoutModal({ workout, onSave, onCancel, onChange }) {
                       <span className="text-white font-medium">Entrada {index + 1}</span>
                       <button
                         onClick={() => removeHistoryEntry(index)}
-                        className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-sm transition-colors"
+                        className="text-red-500 hover:text-red-400 text-lg transition-colors font-bold"
+                        title="Excluir entrada do histórico"
                       >
-                        Remover
+                        ✕
                       </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -496,21 +704,143 @@ function EditWorkoutModal({ workout, onSave, onCancel, onChange }) {
           </div>
 
           <div className="flex space-x-3 mt-6">
-            <button
-              onClick={handleSave}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              Salvar
-            </button>
-            <button
-              onClick={onCancel}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-              Cancelar
-            </button>
+        <button
+          onClick={handleSave}
+          className="text-green-300 hover:text-green-200 transition-colors"
+          title="Salvar alterações"
+        >
+          Salvar
+        </button>
           </div>
         </div>
       </div>
     </div>
   );
 }
+function CreateWorkoutModal({ users, onSave, onCancel }) {
+  const [workoutData, setWorkoutData] = useState({
+    nome: '',
+    userId: '',
+    cicloId: ''
+  });
+  const [cycles, setCycles] = useState([]);
+  const [loadingCycles, setLoadingCycles] = useState(false);
+
+  // Buscar ciclos quando um usuário é selecionado
+  const fetchCycles = async (userId) => {
+    if (!userId) {
+      setCycles([]);
+      return;
+    }
+    
+    setLoadingCycles(true);
+    try {
+      const data = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/admin/cycles`);
+      // Filtrar ciclos do usuário selecionado
+      const userCycles = data.filter(cycle => cycle.usuario._id === userId);
+      setCycles(userCycles);
+    } catch (error) {
+      console.error('Erro ao buscar ciclos:', error);
+      setCycles([]);
+    } finally {
+      setLoadingCycles(false);
+    }
+  };
+
+  const handleUserChange = (userId) => {
+    setWorkoutData({ ...workoutData, userId, cicloId: '' });
+    fetchCycles(userId);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!workoutData.nome || !workoutData.userId) {
+      alert('Nome e usuário são obrigatórios');
+      return;
+    }
+    onSave(workoutData);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 max-w-md w-full">
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-white">Criar Novo Treino</h2>
+            <button
+              onClick={onCancel}
+              className="text-white hover:text-gray-300 text-2xl"
+              title="Cancelar"
+            >
+              ×
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="text-blue-200 text-sm">Nome do Treino</label>
+              <input
+                type="text"
+                value={workoutData.nome}
+                onChange={(e) => setWorkoutData({ ...workoutData, nome: e.target.value })}
+                className="w-full bg-white/20 border border-white/30 rounded-lg px-3 py-2 text-white placeholder-gray-300 focus:outline-none focus:border-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="text-blue-200 text-sm">Usuário</label>
+              <select
+                value={workoutData.userId}
+                onChange={(e) => handleUserChange(e.target.value)}
+                className="w-full bg-white/20 border border-white/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                required
+              >
+                <option value="">Selecione um usuário</option>
+                {users.map((user) => (
+                  <option key={user._id} value={user._id} className="bg-gray-800">
+                    {user.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-blue-200 text-sm">Ciclo (opcional)</label>
+              <select
+                value={workoutData.cicloId}
+                onChange={(e) => setWorkoutData({ ...workoutData, cicloId: e.target.value })}
+                className="w-full bg-white/20 border border-white/30 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                disabled={loadingCycles || !workoutData.userId}
+              >
+                <option value="">Selecione um ciclo</option>
+                {cycles.map((cycle) => (
+                  <option key={cycle._id} value={cycle._id} className="bg-gray-800">
+                    {cycle.nome} {cycle.ativo ? '(Ativo)' : ''}
+                  </option>
+                ))}
+              </select>
+              {loadingCycles && (
+                <div className="text-blue-200 text-xs mt-1">Carregando ciclos...</div>
+              )}
+              {!loadingCycles && workoutData.userId && cycles.length === 0 && (
+                <div className="text-yellow-200 text-xs mt-1">Usuário não possui ciclos</div>
+              )}
+            </div>
+
+            <div className="flex space-x-3 mt-6">
+              <button
+                type="submit"
+                className="text-green-300 hover:text-green-200 transition-colors"
+                title="Criar treino"
+              >
+                Criar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
+  

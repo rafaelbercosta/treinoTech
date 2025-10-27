@@ -49,7 +49,9 @@ export default function UserPage() {
     editandoTreino,
     editBufferTreino,
     exercicioExpandido,
+    exerciciosConcluidos,
     toggleExpandirExercicio,
+    toggleExercicioConcluido,
     novoExercicio,
     setNovoExercicio,
     novoHistoricoObs,
@@ -408,7 +410,9 @@ export default function UserPage() {
             novoHistoricoObs={novoHistoricoObs}
             setNovoHistoricoObs={setNovoHistoricoObs}
             exercicioExpandido={exercicioExpandido}
+            exerciciosConcluidos={exerciciosConcluidos}
             onToggleExpandirExercicio={toggleExpandirExercicio}
+            onToggleExercicioConcluido={toggleExercicioConcluido}
             successPopupTreino={successPopupTreino}
             swipeStart={swipeStart}
             swipeActive={swipeActive}

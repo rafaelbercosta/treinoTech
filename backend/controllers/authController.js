@@ -136,3 +136,49 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ message: "Erro no servidor" });
   }
 };
+
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.user.id;
+
+    // Validações
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "Todos os campos são obrigatórios" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Nova senha e confirmação não coincidem" });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Nova senha deve ter pelo menos 6 caracteres" });
+    }
+
+    if (currentPassword === newPassword) {
+      return res.status(400).json({ message: "A nova senha deve ser diferente da senha atual" });
+    }
+
+    // Buscar o usuário
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    // Verificar se a senha atual está correta
+    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({ message: "Senha atual incorreta" });
+    }
+
+    // Atualizar a senha
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ message: "Senha alterada com sucesso" });
+
+  } catch (error) {
+    console.error("Erro ao alterar senha:", error);
+    res.status(500).json({ message: "Erro no servidor" });
+  }
+};

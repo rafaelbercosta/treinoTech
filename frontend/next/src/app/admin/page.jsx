@@ -53,12 +53,12 @@ export default function AdminPage() {
       <DynamicBackground />
       <FixedHeader />
       
-      <div className="container mx-auto px-4 py-8 pt-20">
+      <div className="container mx-auto px-4 py-8 pt-32">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <div className="flex justify-between items-center mb-4">
               <div></div>
-              <h1 className="text-4xl font-bold text-white">
+              <h1 className="text-3xl font-bold text-white">
                 Painel de Administração
               </h1>
               <button
@@ -68,75 +68,70 @@ export default function AdminPage() {
                 Sair
               </button>
             </div>
-            <p className="text-blue-200 text-lg">
-              Gerencie usuários, ciclos e treinos do sistema
-            </p>
           </div>
 
-          {/* Estatísticas */}
-          {stats && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                <div className="text-3xl font-bold text-white">{stats.totalUsers}</div>
-                <div className="text-blue-200">Total de Usuários</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                <div className="text-3xl font-bold text-white">{stats.totalAdmins}</div>
-                <div className="text-blue-200">Administradores</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                <div className="text-3xl font-bold text-white">{stats.totalCycles}</div>
-                <div className="text-blue-200">Ciclos Criados</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                <div className="text-3xl font-bold text-white">{stats.totalWorkouts}</div>
-                <div className="text-blue-200">Treinos Criados</div>
-              </div>
-            </div>
-          )}
-
-          {/* Menu de Administração */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Menu de Administração e Estatísticas */}
+          <div className="flex flex-wrap gap-4 justify-center">
             <AdminCard
               title="Gerenciar Usuários"
-              description="Visualizar, editar e deletar usuários do sistema"
               icon="👥"
               onClick={() => router.push('/admin/users')}
             />
             <AdminCard
               title="Gerenciar Ciclos"
-              description="Visualizar e editar ciclos de todos os usuários"
               icon="🔄"
               onClick={() => router.push('/admin/cycles')}
             />
             <AdminCard
               title="Gerenciar Treinos"
-              description="Visualizar e editar treinos de todos os usuários"
               icon="💪"
               onClick={() => router.push('/admin/workouts')}
             />
+            {/* Estatísticas */}
+            {stats && (
+              <>
+                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 w-32 h-24 flex flex-col items-center justify-center">
+                  <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
+                  <div className="text-blue-200 text-sm">Usuários</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 w-32 h-24 flex flex-col items-center justify-center">
+                  <div className="text-2xl font-bold text-white">{stats.totalAdmins}</div>
+                  <div className="text-blue-200 text-sm">Admins</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 w-32 h-24 flex flex-col items-center justify-center">
+                  <div className="text-2xl font-bold text-white">{stats.totalCycles}</div>
+                  <div className="text-blue-200 text-sm">Ciclos</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 w-32 h-24 flex flex-col items-center justify-center">
+                  <div className="text-2xl font-bold text-white">{stats.totalWorkouts}</div>
+                  <div className="text-blue-200 text-sm">Treinos</div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Usuários Mais Ativos */}
           {stats && stats.mostActiveUsers && stats.mostActiveUsers.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold text-white mb-4">Usuários Mais Ativos</h2>
-              <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                <div className="space-y-3">
-                  {stats.mostActiveUsers.map((user, index) => (
-                    <div key={user._id} className="flex justify-between items-center">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                          {index + 1}
+            <div className="mt-8 flex justify-center">
+              <div className="w-full max-w-md">
+                <h2 className="text-2xl font-bold text-white mb-4 text-center">Usuários Mais Ativos</h2>
+                <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
+                  <div className="space-y-3">
+                    {stats.mostActiveUsers.map((user, index) => (
+                      <div key={user._id} className="flex justify-between items-center">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                            {index + 1}
+                          </div>
+                          <div>
+                            <div className="text-white font-medium">{user.name}</div>
+                            <div className="text-blue-200 text-sm">{user.email}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="text-white font-medium">{user.name}</div>
-                          <div className="text-blue-200 text-sm">{user.email}</div>
-                        </div>
+                        <div className="text-white font-bold">{user.workoutCount} treinos</div>
                       </div>
-                      <div className="text-white font-bold">{user.workoutCount} treinos</div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -151,11 +146,10 @@ function AdminCard({ title, description, icon, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 cursor-pointer hover:bg-white/20 transition-all duration-300 hover:scale-105"
+      className="bg-white/10 backdrop-blur-lg rounded-xl p-4 border border-white/20 cursor-pointer hover:bg-white/20 transition-all duration-300 hover:scale-105 w-32 h-24 flex flex-col items-center justify-center"
     >
-      <div className="text-4xl mb-4">{icon}</div>
-      <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-      <p className="text-blue-200">{description}</p>
+      <div className="text-3xl mb-2">{icon}</div>
+      <h3 className="text-sm font-bold text-white text-center leading-tight">{title}</h3>
     </div>
   );
 }

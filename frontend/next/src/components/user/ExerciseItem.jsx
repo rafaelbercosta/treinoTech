@@ -30,7 +30,9 @@ export default function ExerciseItem({
   setHistoricoVisivel,
   setExFormVisivel,
   exercicioExpandido,
-  onToggleExpandirExercicio
+  onToggleExpandirExercicio,
+  exerciciosConcluidos,
+  onToggleExercicioConcluido
 }) {
   // Função para fechar todos os formulários e edições quando editar exercício
   const fecharFormulariosAoEditar = () => {
@@ -379,7 +381,11 @@ export default function ExerciseItem({
               <div className="flex-1 min-w-0 max-w-[60%]">
                 <div className="flex items-center gap-2">
                   <h4 
-                    className={`font-bold text-sm leading-tight truncate ${modoClaro ? 'text-blue-700' : 'text-blue-300'}`}
+                    className={`font-bold text-sm leading-tight truncate transition-colors duration-200 ${
+                      exerciciosConcluidos[exercicio._id]
+                        ? modoClaro ? 'text-gray-500 line-through' : 'text-gray-500 line-through'
+                        : modoClaro ? 'text-blue-700' : 'text-blue-300'
+                    }`}
                     title={exercicio.nome}
                     style={{ maxWidth: '200px' }}
                   >
@@ -424,7 +430,11 @@ export default function ExerciseItem({
             <div className="w-full">
               {/* Nome do exercício expandido */}
               <div className={`mb-3 transition-all duration-300 ${exercicioExpandido[exercicio._id] ? 'delay-50 opacity-100 transform translate-y-0' : 'delay-0 opacity-0 transform -translate-y-2'}`}>
-                <h4 className={`font-bold text-base transition-colors duration-200 ${modoClaro ? 'text-blue-700' : 'text-blue-300'}`}>
+                <h4 className={`font-bold text-base transition-colors duration-200 ${
+                  exerciciosConcluidos[exercicio._id]
+                    ? modoClaro ? 'text-gray-500 line-through' : 'text-gray-500 line-through'
+                    : modoClaro ? 'text-blue-700' : 'text-blue-300'
+                }`}>
                   {exercicio.nome}
                 </h4>
               </div>
@@ -488,8 +498,31 @@ export default function ExerciseItem({
                 </div>
               )}
               
-              {/* Botão de editar */}
-              <div className={`mt-3 flex justify-end transition-all duration-300 ${exercicioExpandido[exercicio._id] ? 'delay-225 opacity-100 transform translate-y-0' : 'delay-150 opacity-0 transform -translate-y-2'}`}>
+              {/* Checkbox de conclusão e botão de editar */}
+              <div className={`mt-3 flex justify-between items-center transition-all duration-300 ${exercicioExpandido[exercicio._id] ? 'delay-225 opacity-100 transform translate-y-0' : 'delay-150 opacity-0 transform -translate-y-2'}`}>
+                {/* Checkbox de conclusão */}
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-medium ${modoClaro ? 'text-gray-600' : 'text-gray-400'}`}>
+                    Concluído:
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={exerciciosConcluidos[exercicio._id] || false}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      onToggleExercicioConcluido(exercicio._id);
+                    }}
+                    className={`w-4 h-4 rounded border-2 transition-all duration-200 ${
+                      exerciciosConcluidos[exercicio._id]
+                        ? 'bg-green-500 border-green-500 text-white'
+                        : modoClaro
+                          ? 'border-gray-400 hover:border-green-500'
+                          : 'border-gray-500 hover:border-green-400'
+                    }`}
+                    title={exerciciosConcluidos[exercicio._id] ? "Marcar como não concluído" : "Marcar como concluído"}
+                  />
+                </div>
+                
                 <button
                   onClick={(e) => {
                     e.stopPropagation();

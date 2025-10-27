@@ -152,21 +152,21 @@ export const addHistory = async (req, res) => {
 };
 
 export const deleteHistory = async (req, res) => {
-    try {
-        const { workoutId, historyId } = req.params;
-        const workout = await Workout.findById(workoutId);
-        if (!workout) return res.status(404).json({message: "Treino não encontrado"});
-        if (workout.userId.toString() !== req.user.id) {
-            return res.status(403).json({message: "Não autorizado"});
-        }
-        workout.historico = workout.historico.filter(
-            (h) => h._id.toString() !== historyId
-
-        );
-
-        await workout.save();
-        res.json(workout);
-    } catch (error) {
-        res.status(500).json({message: "Erro ao remover histórico", error: error.message});
+  try {
+    const { workoutId, historyId } = req.params;
+    const workout = await Workout.findById(workoutId);
+    if (!workout) return res.status(404).json({message: "Treino não encontrado"});
+    if (workout.userId.toString() !== req.user.id) {
+      return res.status(403).json({message: "Não autorizado"});
     }
+    workout.historico = workout.historico.filter(
+      (h) => h._id.toString() !== historyId
+
+    );
+
+    await workout.save();
+    res.json(workout);
+  } catch (error) {
+    res.status(500).json({message: "Erro ao remover histórico", error: error.message});
+  }
 };

@@ -17,6 +17,7 @@ export function useWorkoutUI() {
   const [editandoTreino, setEditandoTreino] = useState({});
   const [editBufferTreino, setEditBufferTreino] = useState({});
   const [exercicioExpandido, setExercicioExpandido] = useState({});
+  const [exerciciosConcluidos, setExerciciosConcluidos] = useState({});
 
   // Estados de formulários
   const [novoExercicio, setNovoExercicio] = useState({});
@@ -148,6 +149,13 @@ export function useWorkoutUI() {
         }
       }
     }
+  };
+
+  const toggleExercicioConcluido = (exercicioId) => {
+    setExerciciosConcluidos((prev) => ({
+      ...prev,
+      [exercicioId]: !prev[exercicioId]
+    }));
   };
 
   // Funções de atualização de campo
@@ -484,6 +492,7 @@ export function useWorkoutUI() {
     toggleObservacao,
     toggleMenuTreino,
     toggleModoSwipe,
+    toggleExercicioConcluido,
 
     // Funções de swipe
     handleTouchStart,
@@ -504,6 +513,7 @@ export function useWorkoutUI() {
 
     // Estados e funções de expansão de exercícios
     exercicioExpandido,
+    exerciciosConcluidos,
     toggleExpandirExercicio
   };
 }
