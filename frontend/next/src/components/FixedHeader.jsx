@@ -11,12 +11,12 @@ export default function FixedHeader() {
     <div className="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b border-blue-400/20" style={{ backgroundColor: '#000030' }}>
       <div className="flex items-center justify-between p-3 relative">
         <div className="absolute inset-0 backdrop-blur-sm -mx-[50vw] left-1/2 transform -translate-x-1/2 w-screen" style={{ backgroundColor: '#000030' }}></div>
-        
+
         {/* Logo centralizado */}
         <div className="flex-1 flex justify-center">
           <Link href="/">
             <img
-              src="/TreinoTech.svg"
+              src="/TreinoTechFundoTransparente.png"
               alt="TreinoTech Logo"
               width={175}
               height={70}
