@@ -170,7 +170,7 @@ export default function AdminCyclesPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
       <DynamicBackground />
       <FixedHeader />
-      
+
       <div className="container mx-auto px-4 py-8 pt-32">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
@@ -240,11 +240,10 @@ export default function AdminCyclesPage() {
                         {cycle.dataFim ? new Date(cycle.dataFim).toLocaleDateString() : 'Não definida'}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          cycle.ativo 
-                            ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
-                            : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
-                        }`}>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${cycle.ativo
+                          ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                          : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
+                          }`}>
                           {cycle.ativo ? 'Ativo' : 'Inativo'}
                         </span>
                       </td>
@@ -257,7 +256,7 @@ export default function AdminCyclesPage() {
                           >
                             ⋮
                           </button>
-                          
+
                           {openDropdown === cycle._id && (
                             <div className="absolute right-8 top-0 bg-white/90 backdrop-blur-lg rounded-lg shadow-lg border border-white/20 z-50 p-2">
                               <div className="flex space-x-2">
