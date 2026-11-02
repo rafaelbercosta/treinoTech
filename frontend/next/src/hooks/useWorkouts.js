@@ -23,7 +23,7 @@ export function useWorkouts(cicloId = null) {
     if (response.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      alert("Sessão expirada. Faça login novamente.");
+      // alert("Sessão expirada. Faça login novamente.");
       router.push("/login");
       return true;
     }
@@ -34,7 +34,7 @@ export function useWorkouts(cicloId = null) {
   const verificarTokenAntesOperacao = () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Sessão expirada. Faça login novamente.");
+      // alert("Sessão expirada. Faça login novamente.");
       router.push("/login");
       return false;
     }
